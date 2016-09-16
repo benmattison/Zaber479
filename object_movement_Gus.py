@@ -22,8 +22,8 @@ args = vars(ap.parse_args())
 # !!! Changed the color values to match my green pingpong balls
 greenLower = (45, 86, 6)
 greenUpper = (80, 255, 255)
-lower_blue = np.array([100, 50, 40])
-upper_blue = np.array([140, 255, 150])
+lower_blue = np.array([100, 50, 35])
+upper_blue = np.array([140, 255, 100])
 
 # !!! Made the minimum detection radius smaller
 minRad = 5
