@@ -65,7 +65,7 @@ while True:
 	# construct a mask for the color "green", then perform
 	# a series of dilations and erosions to remove any small
 	# blobs left in the mask
-	mask = cv2.inRange(hsv, lower_blue, upper_blue)
+	mask = cv2.inRange(hsv, greenLower, greenUpper)
 	mask = cv2.erode(mask, None, iterations=2)
 	mask = cv2.dilate(mask, None, iterations=2)
 
@@ -141,12 +141,16 @@ while True:
 
 	# show the movement deltas and the direction of movement on
 	# the frame
-	cv2.putText(frame, direction, (10, 30), cv2.FONT_HERSHEY_SIMPLEX,
-		0.65, (0, 0, 255), 3)
+	# !!! COMMENTED OUT: 
+	# cv2.putText(frame, direction, (10, 30), cv2.FONT_HERSHEY_SIMPLEX,
+	# 	0.65, (0, 0, 255), 3)
 	# !!! Added the X, Y, and diameter display
-	cv2.putText(frame, "dx: {}, dy: {}, X: {}, Y: {}, dia: {}".format(dX, dY, int(x), int(y), int(2*radius)),
+	cv2.putText(frame, "dx: {}, dy: {}".format(dX, dY),
+		(10, 20), cv2.FONT_HERSHEY_SIMPLEX,
+		0.65, (0, 0, 255), 2)
+	cv2.putText(frame, "X: {}, Y: {}, dia: {}".format(int(x), int(y), int(2*radius)),
 		(10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX,
-		0.35, (0, 0, 255), 1)
+		0.65, (0, 0, 255), 2)
 
 	# show the frame to our screen and increment the frame counter
 	cv2.imshow("Frame", frame)
