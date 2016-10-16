@@ -5,58 +5,79 @@
 # import the necessary packages
 from collections import deque
 import numpy as np
-import argparse
-import imutils
 import cv2
 
 
 # Maximum horizontal angle of the camera frame of view.
-# TODO: Test this.
-th_max = 30
-# Maximum vertical angle.
-phi_max = 20
+th_max = 22.5
 # camera separation distance (mm)
 d_sep = 60
 
-# construct the argument parse and parse the arguments
-ap = argparse.ArgumentParser()
-ap.add_argument("-v", "--video",
-	help="path to the (optional) video file")
-ap.add_argument("-b", "--buffer", type=int, default=32,
-	help="max buffer size")
-args = vars(ap.parse_args())
-
-# define the lower and upper boundaries of the "green"
-# ball in the HSV color space
-# !!! Changed the color values to match my green pingpong balls
-# greenLower = (45, 86, 30)
-# greenUpper = (80, 255, 255)
-pinkLower = (145, 86, 30)
-pinkUpper = (180, 255, 255)
-# lower_blue = np.array([100, 50, 35])
-# upper_blue = np.array([140, 255, 100])
-
+# an assortment of upper and lower bounds for the different colors we use in HSV.
+greenLower = (45, 86, 30)
+greenUpper = (80, 255, 255)
+pinkLower = (140, 50, 180)
+pinkUpper = (170, 255, 255)
+blueLower = (115,100,70)
+blueUpper = (125,255,255)
+# Choose the ones you want to use.
 lower = pinkLower
 upper = pinkUpper
 
-# !!! Made the minimum detection radius smaller
+# the minimum radius of a blob to detect it.
 minRad = 5
 
-(dX, dY) = (0, 0)
-direction = ""
-# !!! Initialized these variables so that we can print them no matter what
+# initialized these variables so that we can print them no matter what
 ((x, y), radius) = ((0,0),0)
 
+# if we have uniform camera settings the color matching should work better
+# we should also explore some of the other .set options like hue.
+exposure = -6
+fps = 5
 # grab the reference to the webcams
-Lcam = cv2.VideoCapture(2)
-Rcam = cv2.VideoCapture(1)
-L = 1
+Lcam = cv2.VideoCapture(1)
+Rcam = cv2.VideoCapture(2)
+for camera in [Lcam, Rcam]:
+	camera.set(15,exposure)
+	camera.set(5,fps)
 
+# Keeps track of the last 10 points for averaging.
+lastPoints = np.zeros((10,2,3),dtype=np.float)
+lastPointsInd = 0 # index to iterate through
+
+
+L = True # First we will look at the left camera.
+
+# Initialize some variables, ignore this until later.
 th = [1,1]
-phi = [1,1]
+(zreal,xreal,yreal) = (0.0,0.0,0.0)
+pathPoints = []
+breakloop = False
 
-# keep looping
+def rescale(image, ratio): # Resize an image using linear interpolation
+	dim = (int(image.shape[1] * ratio), int(image.shape[0] * ratio))
+	rescaled = cv2.resize(image, dim, interpolation = cv2.INTER_LINEAR)
+	return rescaled
+
+def filterColor(image, lowerHSV, upperHSV): # Filter out a certain set of colors from an image
+	# # resize the frame, blur it, and convert it to the HSV
+	# # color space
+	blurred = cv2.GaussianBlur(image, (11, 11), 0)
+	hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
+
+	# construct a mask for the color "green", then perform
+	# a series of dilations and erosions to remove any small
+	# blobs left in the mask
+	mask = cv2.inRange(hsv, lowerHSV, upperHSV)
+	mask = cv2.erode(mask, None, iterations=2)
+	mask = cv2.dilate(mask, None, iterations=2)
+	return mask, hsv
+
+
+
+# keep recording indefiniely
 while True:
+	# Switch between cameras
 	for camera in [Lcam, Rcam]:
 		# Switching between cameras, easy to label image outputs.
 		if L:
@@ -66,30 +87,16 @@ while True:
 
 		# grab the current frame
 		(grabbed, frame) = camera.read()
-
-		# This is the resizing ratio. Increasing length and height by r=2.
-		r = 4
-		# The dimensions of the new image.
-		dim = (int(frame.shape[1] * r), int(frame.shape[0] * r))
-		 
-		# perform the actual resizing of the image using bilinear interpolation
+		
+		# Going to scale up by this ratio for better analysis
+		scaleR = 4
+		# Perform the actual resizing of the image using bilinear interpolation
 		frame_orig = frame
-		frame = cv2.resize(frame_orig, dim, interpolation = cv2.INTER_LINEAR)
+		frame = rescale(frame_orig, scaleR)
 
-		# # resize the frame, blur it, and convert it to the HSV
-		# # color space
-		# frame = imutils.resize(frame, width=600)
-		# blurred = cv2.GaussianBlur(frame, (11, 11), 0)
-		hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+		(mask, hsv) = filterColor(frame,lower,upper)
 
-		# construct a mask for the color "green", then perform
-		# a series of dilations and erosions to remove any small
-		# blobs left in the mask
-		mask = cv2.inRange(hsv, lower, upper)
-		mask = cv2.erode(mask, None, iterations=2)
-		mask = cv2.dilate(mask, None, iterations=2)
-
-		cv2.imshow('mask'+camSide, mask)
+		cv2.imshow('mask'+camSide, rescale(mask,1.0/scaleR))
 
 		# find contours in the mask and initialize the current
 		# (x, y) center of the ball
@@ -115,17 +122,10 @@ while True:
 					(0, 255, 255), 2)
 				cv2.circle(frame, center, 5, (0, 0, 255), -1)
 
-		# show the movement deltas and the direction of movement on
-		# the frame
-		# !!! COMMENTED OUT: 
-		# cv2.putText(frame, direction, (10, 30), cv2.FONT_HERSHEY_SIMPLEX,
-		# 	0.65, (0, 0, 255), 3)
-		# !!! Added the X, Y, and diameter display
-
 		# THIS NEEDS TO BE CALIBRATED BETTER
 		# C = observed radius (pixels) * actual distance (mm)
 		# TODO: Find this by accurate measurement.
-		C = 18000
+		C = 52000
 		# This is a rough distance estimate from radius. We can do better with stereo and compare to this.
 		if radius>0:
 			dist_r = C/radius
@@ -133,34 +133,45 @@ while True:
 			dist_r = 0
 
 		# make x and y relative to origin (center)
+		(xframe,yframe) = (int(x),int(y))
 		(x,y) = (x-frame.shape[1]/2,y-frame.shape[0]/2)
-		
-		# Distance from the origin to the center of the ball.
-		r_o = np.sqrt(x*x+y*y)
+
+		lastPoints[lastPointsInd,int(L)] = [x,y,radius]
+
+		averages = lastPoints.mean(axis=0)
+		(xav,yav,radav) = averages[int(L)]
+		avxav = np.mean(averages[:,0])
 
 		# maximum horixontal pixels
 		w_max = frame.shape[1]/2
 		# maximum vertical pixels
 		h_max = frame.shape[0]/2
 
+		th[L] = xav/w_max*th_max
 
-		th[L] = x/w_max*th_max
-		phi[L] = y/h_max*phi_max
+		triangle = (90-th[1], 90+th[0], th[1]-th[0])
 
-		triangle = (90-th[1], 90+th[0], 180-th[0]+th[1])
-
+		# a is the distance from the left camera
 		a = np.sin(np.deg2rad(triangle[0]))*d_sep/np.sin(np.deg2rad(triangle[2]))
+		# b is the distance from the right camera
 		b = np.sin(np.deg2rad(triangle[1]))*d_sep/np.sin(np.deg2rad(triangle[2]))
 
-		dist_stereo = np.sqrt(a*a+b*b)
+		dist_stereo = b*np.sin(np.deg2rad(triangle[0]))
 
-		cv2.putText(frame, "dist_r: {}, dist_stereo: {}".format(int(dist_r), dist_stereo),
+		if not L:
+			zreal = dist_stereo*np.cos(np.deg2rad(np.mean(th)))
+			xreal = dist_stereo*np.sin(np.deg2rad(np.mean(th)))
+			yreal = -xreal*yav/avxav
+
+		# Scale down the frame again for displaying.
+		frame = rescale(frame,1.0/scaleR)
+
+		cv2.putText(frame, "d_r: {}, d_stereo: {:4.2f}, (x, y, z): ({},{},{})".format(int(dist_r),
+			dist_stereo,int(xreal),int(yreal),int(zreal)),
 			(10, 20), cv2.FONT_HERSHEY_SIMPLEX,
 			0.65, (0, 0, 255), 2)
-		# cv2.putText(frame, "dx: {}, dy: {}".format(dX, dY),
-		# 	(10, 20), cv2.FONT_HERSHEY_SIMPLEX,
-		# 	0.65, (0, 0, 255), 2)
-		cv2.putText(frame, "X: {}, Y: {}, r_0: {}, dia: {}".format(int(x), int(y), int(r_o), int(2*radius)),
+
+		cv2.putText(frame, "X: {}, Y: {}, dia: {}".format(int(xav), int(yav), int(2*radav)),
 			(10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX,
 			0.65, (0, 0, 255), 2)
 
@@ -169,14 +180,39 @@ while True:
 
 		# Switching between cameras, easy to label image outputs.
 		if L:
-			L = 0
+			L = False
 		else:
-			L = 1
+			L = True
+			# Iterate through the history.
+			lastPointsInd = lastPointsInd+1;
+			if lastPointsInd==lastPoints.shape[0]:
+				lastPointsInd = 0
 
-	key = cv2.waitKey(1) & 0xFF
-	# if the 'q' key is pressed, stop the loop
-	if key == ord("q"):
+		key = cv2.waitKey(2)
+		# if the 'c' key is pressed, display the hsv values at the center of the ball
+		if key == ord("c"):
+			# print(hsv.shape[0],hsv.shape[1])
+			# print(xframe,yframe)
+			print hsv[yframe,xframe,:]
+			print hsv[yframe+10,xframe+10,:]
+			print hsv[yframe-10,xframe-10,:]
+		# take coordinates if 'p' is pressed
+		if key == ord("p"):
+			if not pathPoints:
+				pathPoints = [[xreal,yreal,zreal]]
+				print pathPoints
+			else:
+				pathPoints.append([xreal,yreal,zreal])
+				path = np.array(pathPoints[len(pathPoints)-1])-np.array(pathPoints[len(pathPoints)-2])
+				print path
+
+		# if the 'q' key is pressed, stop the loop
+		if key == ord("q"):
+			breakloop = True
+			break
+	if breakloop:
 		break
+
 
 # cleanup the camera and close any open windows
 camera.release()
