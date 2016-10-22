@@ -1,4 +1,4 @@
-from camera_calibration import StereoCalibration
+from camera_calibrate import StereoCalibration
 
-cal = StereoCalibration('/path/to/stereo/camera/images')
+cal = StereoCalibration('C:/Users/Gus/Documents/aUBC/GitHub/Zaber479/LogitechCalibration/')
 cal.camera_model
