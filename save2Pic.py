@@ -2,11 +2,11 @@ import cv2
 
 exposure = -6
 fps = 5
-Lcam = cv2.VideoCapture(1)
-Rcam = cv2.VideoCapture(2)
-for camera in [Lcam, Rcam]:
-	camera.set(15,exposure)
-	camera.set(5,fps)
+Lcam = cv2.VideoCapture(0)
+Rcam = cv2.VideoCapture(1)
+#for camera in [Lcam, Rcam]:
+#	camera.set(15,exposure)
+#	camera.set(5,fps)
 
 #photo number
 i = 0
@@ -31,8 +31,8 @@ while True:
 		key = cv2.waitKey(1)
 
 		if key == ord('p'):
-			cv2.imwrite('StereoCalibration/Stereo%d_'%i+camSide+'.jpg', frame)
-			cv2.imwrite('StereoCalibration/Stereo%d_other.jpg' % i, lastFrame)
+			cv2.imwrite('StereoCalibration/Stereo%d_'%i+camSide+'.png', frame)
+			cv2.imwrite('StereoCalibration/Stereo%d_other.png' % i, lastFrame)
 			i = i + 1
 			if i == p:
 				done = True

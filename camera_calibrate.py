@@ -25,8 +25,8 @@ class StereoCalibration(object):
 		self.read_images(self.cal_path)
 
 	def read_images(self, cal_path):
-		images_right = glob.glob(cal_path + 'RIGHT/*.jpg')
-		images_left = glob.glob(cal_path + 'LEFT/*.jpg')
+		images_right = glob.glob(cal_path + 'RIGHT/*.png')
+		images_left = glob.glob(cal_path + 'LEFT/*.png')
 		images_left.sort()
 		images_right.sort()
 
@@ -108,6 +108,7 @@ class StereoCalibration(object):
 		print('T', T)
 		print('E', E)
 		print('F', F)
+		print('dims',dims)
 
 		# for i in range(len(self.r1)):
 		#     print("--- pose[", i+1, "] ---")
@@ -121,7 +122,7 @@ class StereoCalibration(object):
 		camera_model = dict([('M1', M1), ('M2', M2), ('dist1', d1),
 							('dist2', d2), ('rvecs1', self.r1),
 							('rvecs2', self.r2), ('R', R), ('T', T),
-							('E', E), ('F', F)])
+							('E', E), ('F', F),('dims',dims)])
 
 		cv2.destroyAllWindows()
 		return camera_model
