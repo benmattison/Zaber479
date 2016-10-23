@@ -35,8 +35,8 @@ minRad = 5
 exposure = -6
 fps = 5
 # grab the reference to the webcams
-Lcam = cv2.VideoCapture(1)
-Rcam = cv2.VideoCapture(2)
+Lcam = cv2.VideoCapture(0)
+Rcam = cv2.VideoCapture(1)
 for camera in [Lcam, Rcam]:
 	camera.set(15,exposure)
 	camera.set(5,fps)
