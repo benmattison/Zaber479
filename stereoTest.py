@@ -2,23 +2,45 @@ import cv2
 from matplotlib import pyplot as plt
 import numpy as np
 
-cap = cv2.VideoCapture(0)
-cap2 = cv2.VideoCapture(1)
+capR = cv2.VideoCapture(1)
+capL = cv2.VideoCapture(2)
 
 while True:
 
-    ret, frame = cap.read()
-    ret2, frame2 = cap2.read()
+    retR, frameR = capR.read()
+    retL, frameL = capL.read()
 
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    gray2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
+    grayImgR = cv2.cvtColor(frameR, cv2.COLOR_BGR2GRAY)
+    grayImgL = cv2.cvtColor(frameL, cv2.COLOR_BGR2GRAY)
 
-    cv2.imshow('logitech',frame)
-    cv2.imshow('webcam',frame2)
+    cv2.imshow('right',grayImgR)
+    cv2.imshow('left',grayImgL)
 
-    stereo = cv2.StereoBM_create(numDisparities=16, blockSize=15)
-    disparity = stereo.compute(gray, gray2)
-    cv2.imshow('disparity',disparity)
-
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    key = cv2.waitKey(1)
+    if key == ord('q'):
         break
+
+
+
+# This is the resizing ratio. Increasing length and height by r=2.
+r = 4
+# The dimensions of the new image.
+dim = (int(grayImgR.shape[1] * r), int(grayImgR.shape[0] * r)) 
+# perform the actual resizing of the image using bilinear interpolation
+grayImgR = cv2.resize(grayImgR, dim, interpolation = cv2.INTER_LINEAR)
+grayImgL = cv2.resize(grayImgL, dim, interpolation = cv2.INTER_LINEAR)
+
+# stereo = cv2.StereoBM_create()
+# stereo = cv2.StereoBM_create(numDisparities=16, blockSize=15)
+stereo = cv2.StereoSGBM_create(1, 16, 15)
+
+disparity = stereo.compute(grayImgL, grayImgR)
+# cv2.imshow('disparity',disparity)
+plt.imshow(disparity,'gray')
+plt.show()
+
+
+
+capR.release()
+capL.release()
+cv2.destroyAllWindows()
