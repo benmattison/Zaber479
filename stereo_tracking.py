@@ -1,8 +1,7 @@
+# Import python packages
 import numpy as np
 import cv2
-import glob
-import argparse
-
+# Import some open source code
 from camera_calibrate import StereoCalibration
 
 def filterColor(image, lowerHSV, upperHSV): # Filter out a certain set of colors from an image
@@ -24,20 +23,22 @@ def rescale(image, ratio): # Resize an image using linear interpolation
 	rescaled = cv2.resize(image, dim, interpolation = cv2.INTER_LINEAR)
 	return rescaled
 
-cal = StereoCalibration('C:/UBC/5th Year/ENPH479/Code/Zaber479/LogitechCalibration/')
-
+# Perform calibration of the two cameras from a set of photos.
+cal = StereoCalibration('C:/UBC/5th Year/ENPH479/Code/Zaber479/CameraCalibration/LogitechCalibration/')
+# Extract calibration information (matrices)\
+# Intrinsic Camera Matrices
 M1 = cal.camera_model.get('M1')
 M2 = cal.camera_model.get('M2')
+# Distortion Matrixes
 d1 = cal.camera_model.get('d1')
 d2 = cal.camera_model.get('d2')
-R = cal.camera_model.get('R')
-T = cal.camera_model.get('T')
-E = cal.camera_model.get('E')
-F = cal.camera_model.get('F')
+R = cal.camera_model.get('R') # Relative rotation matrix between first and second
+T = cal.camera_model.get('T') # Relative translation vector between first and second
+E = cal.camera_model.get('E') # Essential matrix
+F = cal.camera_model.get('F') # Fundamental metrix
 dims = cal.camera_model.get('dims')
 
-sqr_size = 0.01425  # 14.25mm
-
+sqr_size = 0.01425  # 14.25mm length of the printed calibration squares
 T_real = T*sqr_size
 
 print('T real',T_real)
