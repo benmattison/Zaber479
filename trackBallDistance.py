@@ -215,5 +215,6 @@ while True:
 
 
 # cleanup the camera and close any open windows
-camera.release()
+Lcam.release()
+Rcam.release()
 cv2.destroyAllWindows()
