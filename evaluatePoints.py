@@ -1,5 +1,5 @@
 import numpy as np
-import scipy
+
 
 
 class evalPoints(object):
@@ -20,7 +20,7 @@ class evalPoints(object):
 		return vv[0], dataMean, avgError
 
 	def circleAnalysis(self):
-        # Determine the radius and center of a circle
+	    # Determine the radius and center of a circle
 
         #setting the points
         A = self.points.points1
@@ -42,10 +42,16 @@ class evalPoints(object):
         cc = np.column_stack((A, B, C)).dot(np.hstack((b1, b2, b3)))
         cc /= b1 + b2 + b3
 
-	    #Getting normal vector for circle
+        #Getting normal vector for circle
 	    normalvector = np.cross(a, b)
 
-        return r cc normalvector
+	    #calculating the angle of the plane to the x, y plane
+        normalXY = [0, 0, 1] #normal vecor to x,y plane
+		lengthXY = np.linalg.norm(normalXY) #length x, y plane
+		length_normalvecotr = np.linalg.norm(normalvector) #length of the normal vector
+		theta = np.arccos((np.dot(normalvector, normalXY))/(lengthXY*length_normalvecotr))
+
+        return r, cc, normalvector, theta
 
 
 
