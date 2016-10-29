@@ -40,7 +40,12 @@ class evalPoints(object):
 		cc = np.column_stack((A, B, C)).dot(np.hstack((b1, b2, b3)))
 		cc /= b1 + b2 + b3
 
-		return r, cc
+		#Getting normal vector for circle
+		normalVector = np.cross(A-C, B-C)
+		normalVector /= np.linalg.norm(normalvector)
 
+		#calculating the angle of the plane to the x, y plane
+		normalXY = [0, 0, 1] #normal vecor to x,y plane
+		theta = np.arccos(np.dot(normalVector, normalXY))
 
-
+		return r, cc, normalVector, theta
