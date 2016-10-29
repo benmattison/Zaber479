@@ -146,7 +146,7 @@ while True:
 
 	key = cv2.waitKey(10)
 
-	if key == ord("c")
+	if key == ord("c"):
 		print('worldPoints:', worldPoints)
 		print('xReal:', xReal)
 		print('yReal:', yReal)

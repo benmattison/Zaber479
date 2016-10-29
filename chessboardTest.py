@@ -48,14 +48,14 @@ while(True):
         #cv2.imwrite('originalChessboardWithLines.jpg',frame)
         key = cv2.waitKey(500)
         
-        count=count+1;
+        count=count+1
         if count == 30:
             break
 
-        if key == ord('q')
+        if key == ord('q'):
             end = True
             break
-    if end
+    if end:
         break
 
 # When everything done, release the capture
