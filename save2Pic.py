@@ -2,7 +2,7 @@ import cv2
 
 exposure = -6
 fps = 5
-Lcam = cv2.VideoCapture(0)
+Lcam = cv2.VideoCapture(2)
 Rcam = cv2.VideoCapture(1)
 #for camera in [Lcam, Rcam]:
 #	camera.set(15,exposure)
@@ -18,37 +18,25 @@ L = True
 done = False
 
 while True:
-	for camera in [Lcam, Rcam]:
-		# Switching between cameras, easy to label image outputs.
-		if L:
-			camSide = 'L'
-		else:
-			camSide = 'R'
+	retL, capL = Lcam.read()
+	retR, capR = Rcam.read()
 
-		(grabbed, frame) = camera.read()
-		cv2.imshow('img'+camSide,frame)
+	cv2.imshow('imgL',capL)
+	cv2.imshow('imgR',capR)
 
-		key = cv2.waitKey(1)
+	key = cv2.waitKey(1)
 
-		if key == ord('p'):
-			cv2.imwrite('StereoCalibration/Stereo%d_'%i+camSide+'.png', frame)
-			cv2.imwrite('StereoCalibration/Stereo%d_other.png' % i, lastFrame)
-			i = i + 1
-			if i == p:
-				done = True
-				break	
-		elif key == ord('q'):
-			done = True
-			break
+	if key == ord('p'):
+		cv2.imwrite('CalibrationPhotos/DualLogi/Stereo%d_L.png'%i, capL)
+		cv2.imwrite('CalibrationPhotos/DualLogi/Stereo%d_R.png'%i, capR)
+		i = i + 1
+		if i == p:
+			done = True	
+	elif key == ord('q'):
+		done = True
 
-		if L:
-			L = False
-		else:
-			L = True
-		lastFrame = frame
 	if done:
 		break
-
 
 Lcam.release()
 Rcam.release()

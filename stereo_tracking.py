@@ -24,7 +24,7 @@ def rescale(image, ratio): # Resize an image using linear interpolation
 	return rescaled
 
 # Perform calibration of the two cameras from a set of photos.
-cal = StereoCalibration('C:/UBC/5th Year/ENPH479/Code/Zaber479/CameraCalibration/LogitechCalibration/')
+cal = StereoCalibration('CalibrationPhotos/DualLogi/')
 # Extract calibration information (matrices)\
 # Intrinsic Camera Matrices
 M1 = cal.camera_model.get('M1')
@@ -75,7 +75,7 @@ minRad = 5
 exposure = -6
 fps = 5
 # grab the reference to the webcams
-Lcam = cv2.VideoCapture(0)
+Lcam = cv2.VideoCapture(2)
 Rcam = cv2.VideoCapture(1)
 #for camera in [Lcam, Rcam]:
 #    camera.set(15, exposure)
@@ -83,80 +83,84 @@ Rcam = cv2.VideoCapture(1)
 
 while True:
 
-    retL,capL = Lcam.read()
-    retR,capR = Rcam.read()
+	retL,capL = Lcam.read()
+	retR,capR = Rcam.read()
 
-    # Going to scale up by this ratio for better analysis
-    scaleR = 4
-    # Perform the actual resizing of the image using bilinear interpolation
-    capL_orig = capL
-    capR_orig = capR
-    capL = rescale(capL_orig, scaleR)
-    capR = rescale(capR_orig, scaleR)
+	# Going to scale up by this ratio for better analysis
+	scaleR = 4
+	# Perform the actual resizing of the image using bilinear interpolation
+	capL_orig = capL
+	capR_orig = capR
+	capL = rescale(capL_orig, scaleR)
+	capR = rescale(capR_orig, scaleR)
 
-    (maskL, hsvL) = filterColor(capL, lower, upper)
-    (maskR, hsvR) = filterColor(capR, lower, upper)
+	(maskL, hsvL) = filterColor(capL, lower, upper)
+	(maskR, hsvR) = filterColor(capR, lower, upper)
 
-    cv2.imshow('maskL', rescale(maskL, 1.0 / scaleR))
-    cv2.imshow('maskR', rescale(maskR, 1.0 / scaleR))
+	cv2.imshow('maskL', rescale(maskL, 1.0 / scaleR))
+	cv2.imshow('maskR', rescale(maskR, 1.0 / scaleR))
 
-    cntsL = cv2.findContours(maskL.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)[-2]
-    cntsR = cv2.findContours(maskR.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)[-2]
-    centerL = None
-    centerR = None
+	cntsL = cv2.findContours(maskL.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)[-2]
+	cntsR = cv2.findContours(maskR.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)[-2]
+	centerL = None
+	centerR = None
 
-    # only proceed if at least one contour was found
-    if len(cntsL)>0 and len(cntsR)>0:
-        # find the largest contour in the mask, then use
-        # it to compute the minimum enclosing circle and
-        # centroid
-        cL = max(cntsL, key=cv2.contourArea)
-        ((xL, yL), radiusL) = cv2.minEnclosingCircle(cL)
-        ML = cv2.moments(cL)
-        centerL = (int(ML["m10"] / ML["m00"]), int(ML["m01"] / ML["m00"]))
+	# only proceed if at least one contour was found
+	if len(cntsL)>0 and len(cntsR)>0:
+		# find the largest contour in the mask, then use
+		# it to compute the minimum enclosing circle and
+		# centroid
+		cL = max(cntsL, key=cv2.contourArea)
+		((xL, yL), radiusL) = cv2.minEnclosingCircle(cL)
+		ML = cv2.moments(cL)
+		centerL = (int(ML["m10"] / ML["m00"]), int(ML["m01"] / ML["m00"]))
 
-        # only proceed if the radius meets a minimum size
-        if radiusL > minRad:
-            # draw the circle and centroid on the frame,
-            # then update the list of tracked points
-            cv2.circle(capL, (int(xL), int(yL)), int(radiusL),
-                       (0, 255, 255), 2)
-            cv2.circle(capL, centerL, 5, (0, 0, 255), -1)
+		# only proceed if the radius meets a minimum size
+		if radiusL > minRad:
+			# draw the circle and centroid on the frame,
+			# then update the list of tracked points
+			cv2.circle(capL, (int(xL), int(yL)), int(radiusL),
+					   (0, 255, 255), 2)
+			cv2.circle(capL, centerL, 5, (0, 0, 255), -1)
 
-        # Repeat for Right side
-        cR = max(cntsR, key=cv2.contourArea)
-        ((xR, yR), radiusR) = cv2.minEnclosingCircle(cR)
-        MR = cv2.moments(cR)
-        centerL = (int(ML["m10"] / ML["m00"]), int(ML["m01"] / ML["m00"]))
+		# Repeat for Right side
+		cR = max(cntsR, key=cv2.contourArea)
+		((xR, yR), radiusR) = cv2.minEnclosingCircle(cR)
+		MR = cv2.moments(cR)
+		centerL = (int(ML["m10"] / ML["m00"]), int(ML["m01"] / ML["m00"]))
 
-        if radiusR > minRad:
-            # draw the circle and centroid on the frame,
-            # then update the list of tracked points
-            cv2.circle(capR, (int(xR), int(yR)), int(radiusR),
-                       (0, 255, 255), 2)
-            cv2.circle(capR, centerR, 5, (0, 0, 255), -1)
+		if radiusR > minRad:
+			# draw the circle and centroid on the frame,
+			# then update the list of tracked points
+			cv2.circle(capR, (int(xR), int(yR)), int(radiusR),
+					   (0, 255, 255), 2)
+			cv2.circle(capR, centerR, 5, (0, 0, 255), -1)
 
-    # Find coordinates in 3D space using the triangulatePoints function for the centers of the circles
-    worldPoints = cv2.triangulatePoints(P1,P2,(xL,yL),(xR,yR))
+	# Find coordinates in 3D space using the triangulatePoints function for the centers of the circles
+	worldPoints = cv2.triangulatePoints(P1,P2,(xL,yL),(xR,yR))
 
-    # Scale by 4th homogeneous coordinate (Not sure about this actually)
-    xReal = worldPoints[0]/worldPoints[3]
-    yReal = worldPoints[1]/worldPoints[3]
-    zReal = worldPoints[2]/worldPoints[3]
+	# Scale by 4th homogeneous coordinate (Not sure about this actually)
+	xReal = worldPoints[0]/worldPoints[3]
+	yReal = worldPoints[1]/worldPoints[3]
+	zReal = worldPoints[2]/worldPoints[3]
 
-    print('xReal:', xReal)
-    print('yReal:', yReal)
-    print('zReal:', zReal)
+	key = cv2.waitKey(10)
 
-    capL = rescale(capL, 1.0 / scaleR)
-    capR = rescale(capR, 1.0 / scaleR)
+	if key == ord("c")
+		print('worldPoints:', worldPoints)
+		print('xReal:', xReal)
+		print('yReal:', yReal)
+		print('zReal:', zReal)
+		print('')
 
-    cv2.imshow("FrameL", capL)
-    cv2.imshow("FrameR", capR)
+	capL = rescale(capL, 1.0 / scaleR)
+	capR = rescale(capR, 1.0 / scaleR)
 
-    key = cv2.waitKey(100)
-    if key == ord("q"):
-        break
+	cv2.imshow("FrameL", capL)
+	cv2.imshow("FrameR", capR)
+
+	if key == ord("q"):
+		break
 
 
 # cleanup the camera and close any open windows

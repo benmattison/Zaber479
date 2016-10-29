@@ -16,6 +16,7 @@ class evalPoints(object):
 		for v in self.points:
 			point2line = np.linalg.norm(np.cross(lineVect,v-dataMean))
 			error = error+point2line
-		return vv[0], dataMean, error
+		avgError = error/length(self.points)
+		return vv[0], dataMean, avgError
 
 	def circleAnalysis(self):
