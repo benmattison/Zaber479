@@ -161,16 +161,16 @@ while True:
 	if key == ord("c"):
 		if not pathPoints:
 			pathPoints = [worldPoints]
-			print length(worldPoints)
+			print np.length(worldPoints)
 		else:
 			pathPoints.append(worldPoints)
-			print length(worldPoints)
+			print np.length(worldPoints)
 		print('worldPoints:', worldPoints)
 		print('')
 
-		if length(pathPoints) == 3:
+		if np.length(pathPoints) == 3:
 			outfile = open("pathPoints.pickle", "wb")
-			pickle.dump(pathPoints, outf)
+			pickle.dump(pathPoints, outfile)
 
 	capL = rescale(capL, 1.0 / scaleR)
 	capR = rescale(capR, 1.0 / scaleR)
