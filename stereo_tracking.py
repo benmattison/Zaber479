@@ -1,6 +1,7 @@
 # Import python packages
 import numpy as np
 import cv2
+import pickle
 # Import some open source code
 from camera_calibrate import StereoCalibration
 
@@ -23,23 +24,28 @@ def rescale(image, ratio): # Resize an image using linear interpolation
 	rescaled = cv2.resize(image, dim, interpolation = cv2.INTER_LINEAR)
 	return rescaled
 
-# Perform calibration of the two cameras from a set of photos.
-cal = StereoCalibration('CalibrationPhotos/DualLogi/')
-# Extract calibration information (matrices)\
-# Intrinsic Camera Matrices
-M1 = cal.camera_model.get('M1')
-M2 = cal.camera_model.get('M2')
-# Distortion Matrixes
-d1 = cal.camera_model.get('d1')
-d2 = cal.camera_model.get('d2')
-R = cal.camera_model.get('R') # Relative rotation matrix between first and second
-T = cal.camera_model.get('T') # Relative translation vector between first and second
-E = cal.camera_model.get('E') # Essential matrix
-F = cal.camera_model.get('F') # Fundamental metrix
-dims = cal.camera_model.get('dims')
+# # Perform calibration of the two cameras from a set of photos.
+# cal = StereoCalibration('CalibrationPhotos/DualLogi/')
+# # Extract calibration information (matrices)\
+# # Intrinsic Camera Matrices
+# M1 = cal.camera_model.get('M1')
+# M2 = cal.camera_model.get('M2')
+# # Distortion Matrixes
+# d1 = cal.camera_model.get('d1')
+# d2 = cal.camera_model.get('d2')
+# R = cal.camera_model.get('R') # Relative rotation matrix between first and second
+# T = cal.camera_model.get('T') # Relative translation vector between first and second
+# E = cal.camera_model.get('E') # Essential matrix
+# F = cal.camera_model.get('F') # Fundamental metrix
+# dims = cal.camera_model.get('dims')
 
-sqr_size = 0.01425  # 14.25mm length of the printed calibration squares
-T_real = T*sqr_size
+# sqr_size = 0.01425  # 14.25mm length of the printed calibration squares
+# T_real = T*sqr_size
+
+mypath = "CalibrationPhotos/"
+infile = open(mypath + "arbitrary_stereo_calibration_DualLogi.pickle", "rb")
+datathings = pickle.load(infile)
+M1, M2, d1, d2, R, T, E, F, dims, T_real = datathings
 
 print('T real',T_real)
 print('')
@@ -145,21 +151,26 @@ while True:
 	worldPoints /= worldPoints[3]
 	worldPoints = worldPoints[:3]
 
-	
-
 	# Scale by 4th homogeneous coordinate (Not sure about this actually)
-	xReal = worldPoints[0]/worldPoints[3]
-	yReal = worldPoints[1]/worldPoints[3]
-	zReal = worldPoints[2]/worldPoints[3]
+	xReal = worldPoints[0]
+	yReal = worldPoints[1]
+	zReal = worldPoints[2]
 
 	key = cv2.waitKey(10)
 
 	if key == ord("c"):
+		if not pathPoints:
+			pathPoints = [worldPoints]
+			print length(worldPoints)
+		else:
+			pathPoints.append(worldPoints)
+			print length(worldPoints)
 		print('worldPoints:', worldPoints)
-		print('xReal:', xReal)
-		print('yReal:', yReal)
-		print('zReal:', zReal)
 		print('')
+
+		if length(pathPoints) == 3:
+			outfile = open("pathPoints.pickle", "wb")
+			pickle.dump(pathPoints, outf)
 
 	capL = rescale(capL, 1.0 / scaleR)
 	capR = rescale(capR, 1.0 / scaleR)
