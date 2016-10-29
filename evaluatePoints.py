@@ -10,12 +10,14 @@ class evalPoints(object):
 		dataMean = self.points.mean(axis=0)
 		uu, dd, vv = np.linalg.svd(self.points-dataMean)
 		lineVect = vv[0]
-		error = 0
+		SSres = 0
+		SStot = 0
 		for v in self.points:
 			point2line = np.linalg.norm(np.cross(lineVect,v-dataMean))
-			error = error+point2line
-		avgError = error/len(self.points)
-		return vv[0], dataMean, avgError
+			SSres = SSres+point2line*point2line
+			SStot = SStot+np.linalg.norm(v-dataMean)*np.linalg.norm(v-dataMean)
+		Rsquared = 1-SSres/SStot
+		return vv[0], dataMean, Rsquare
 
 	def circleAnalysis(self):
 		# Determine the radius and center of a circle
@@ -42,10 +44,26 @@ class evalPoints(object):
 
 		#Getting normal vector for circle
 		normalVector = np.cross(A-C, B-C)
-		normalVector /= np.linalg.norm(normalvector)
+		normalVector /= np.linalg.norm(normalVector)
 
 		#calculating the angle of the plane to the x, y plane
 		normalXY = [0, 0, 1] #normal vecor to x,y plane
 		theta = np.arccos(np.dot(normalVector, normalXY))
 
 		return r, cc, normalVector, theta
+
+	def evaluateArbitrary(self)
+		circ_r, circ_cent, circ_axis, theta = circleAnalysis(self)
+		line_vect, line_cent, line_Rs = lineAnalysis(self)
+
+		if line_Rs > 0.9:
+			isRorary = 0
+			centerPoint = line_cent
+			axisVect = line_vect
+
+		else:
+			isRorary = 1
+			centerPoint = circ_cent
+			axisVect = circ_axis
+
+		return isRotary, centerPoint, axisVect
