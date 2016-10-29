@@ -71,15 +71,19 @@ minRad = 5
 ((xR, yR), radiusR) = ((0,0),0)
 (xReal, yReal, zReal) = (0,0,0)
 
-# The Logitech camera responded really poorly to the exposure so I left it at default for now
-exposure = -6
-fps = 5
-# grab the reference to the webcams
 Lcam = cv2.VideoCapture(2)
 Rcam = cv2.VideoCapture(1)
-#for camera in [Lcam, Rcam]:
-#    camera.set(15, exposure)
-#    camera.set(5, fps)
+# for camera in [Lcam, Rcam]:
+# 	camera.set(15,exposure)
+# 	camera.set(5,fps)
+Logi2exposure = -6
+fps = 5
+Logi1exposure = -8
+Lcam.set(15,Logi1exposure)
+Rcam.set(15,Logi2exposure)
+Lcam.set(5,fps)
+Rcam.set(5,fps)
+
 
 while True:
 
@@ -138,6 +142,10 @@ while True:
 
 	# Find coordinates in 3D space using the triangulatePoints function for the centers of the circles
 	worldPoints = cv2.triangulatePoints(P1,P2,(xL,yL),(xR,yR))
+	worldPoints /= worldPoints[3]
+	worldPoints = worldPoints[:3]
+
+	
 
 	# Scale by 4th homogeneous coordinate (Not sure about this actually)
 	xReal = worldPoints[0]/worldPoints[3]
