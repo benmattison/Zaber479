@@ -159,8 +159,18 @@ while True:
 	key = cv2.waitKey(10)
 
 	if key == ord("c"):
+		if not pathPoints:
+			pathPoints = [worldPoints]
+			print length(worldPoints)
+		else:
+			pathPoints.append(worldPoints)
+			print length(worldPoints)
 		print('worldPoints:', worldPoints)
 		print('')
+
+		if length(pathPoints) == 3:
+			outfile = open("pathPoints.pickle", "wb")
+			pickle.dump(pathPoints, outf)
 
 	capL = rescale(capL, 1.0 / scaleR)
 	capR = rescale(capR, 1.0 / scaleR)
