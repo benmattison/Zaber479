@@ -42,7 +42,10 @@ class evalPoints(object):
         cc = np.column_stack((A, B, C)).dot(np.hstack((b1, b2, b3)))
         cc /= b1 + b2 + b3
 
-        return r, cc
+	    #Getting normal vector for circle
+	    normalvector = np.cross(a, b)
+
+        return r cc normalvector
 
 
 
