@@ -1,13 +1,16 @@
 import cv2
 
-exposure = -6
-fps = 5
-Lcam = cv2.VideoCapture(2)
-Rcam = cv2.VideoCapture(1)
+
+Lcam = cv2.VideoCapture(1)
+Rcam = cv2.VideoCapture(0)
 # for camera in [Lcam, Rcam]:
 # 	camera.set(15,exposure)
 # 	camera.set(5,fps)
-Logi1exposure = -8
+
+exposure = -6
+fps = 5
+Logi1exposure = 0
+
 Lcam.set(15,Logi1exposure)
 Rcam.set(15,exposure)
 Lcam.set(5,fps)

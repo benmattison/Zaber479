@@ -60,8 +60,8 @@ print('P2',P2)
 # an assortment of upper and lower bounds for the different colors we use in HSV.
 greenLower = (45, 86, 30)
 greenUpper = (80, 255, 255)
-pinkLower = (130, 50, 180)
-pinkUpper = (210, 255, 255)
+pinkLower = (105, 60, 60)
+pinkUpper = (170, 255, 255)
 blueLower = (115,100,70)
 blueUpper = (125,255,255)
 
@@ -77,14 +77,14 @@ minRad = 5
 ((xR, yR), radiusR) = ((0,0),0)
 (xReal, yReal, zReal) = (0,0,0)
 
-Lcam = cv2.VideoCapture(2)
-Rcam = cv2.VideoCapture(1)
+Lcam = cv2.VideoCapture(1)
+Rcam = cv2.VideoCapture(0)
 # for camera in [Lcam, Rcam]:
 # 	camera.set(15,exposure)
 # 	camera.set(5,fps)
 Logi2exposure = -6
 fps = 5
-Logi1exposure = -8
+Logi1exposure = 0
 Lcam.set(15,Logi1exposure)
 Rcam.set(15,Logi2exposure)
 Lcam.set(5,fps)

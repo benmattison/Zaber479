@@ -18,7 +18,7 @@ E = cal.camera_model.get('E') # Essential matrix
 F = cal.camera_model.get('F') # Fundamental metrix
 dims = cal.camera_model.get('dims')
 
-sqr_size = 0.01425  # 14.25mm length of the printed calibration squares
+sqr_size = 0.02365  # 14.25mm length of the printed calibration squares
 T_real = T*sqr_size
 
 # Save in CalibrationPhotos folder

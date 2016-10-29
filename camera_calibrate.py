@@ -3,7 +3,7 @@ import cv2
 import glob
 import argparse
 
-# TODO: If the inage format changes, this needs to change.
+# TODO: If the image format changes, this needs to change.
 imageFormat = '.png'
 
 class StereoCalibration(object):
