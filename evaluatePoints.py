@@ -53,16 +53,16 @@ class evalPoints(object):
 		return r, cc, normalVector, theta
 
 	def evaluateArbitrary(self):
-		circ_r, circ_cent, circ_axis, theta = circleAnalysis(self)
-		line_vect, line_cent, line_Rs = lineAnalysis(self)
+		circ_r, circ_cent, circ_axis, theta = self.circleAnalysis()
+		line_vect, line_cent, line_Rs = self.lineAnalysis()
 
 		if line_Rs > 0.9:
-			isRorary = 0
+			isRotary = 0
 			centerPoint = line_cent
 			axisVect = line_vect
 
 		else:
-			isRorary = 1
+			isRotary = 1
 			centerPoint = circ_cent
 			axisVect = circ_axis
 

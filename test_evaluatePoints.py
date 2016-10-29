@@ -8,7 +8,7 @@ import cv2
 lineVectors = np.array([[1,2,3],[2,4,6],[3,6,9]])
 circleVectors = np.array([[0,0,0],[2,0,0],[2,2,2]])
 
-vectors = lineVectors
+vectors = circleVectors
 
 
 vectors = vectors + np.random.normal(size=vectors.shape) * 0.05
