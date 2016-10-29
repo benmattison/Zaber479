@@ -1,6 +1,4 @@
 import numpy as np
-import scipy
-
 
 class evalPoints(object):
 	def __init__(self, points):
@@ -16,33 +14,33 @@ class evalPoints(object):
 		for v in self.points:
 			point2line = np.linalg.norm(np.cross(lineVect,v-dataMean))
 			error = error+point2line
-		avgError = error/length(self.points)
+		avgError = error/len(self.points)
 		return vv[0], dataMean, avgError
 
 	def circleAnalysis(self):
-        # Determine the radius and center of a circle
+		# Determine the radius and center of a circle
 
-        #setting the points
-        A = self.points.points1
-        B = self.points.points2
-        C = self.points.points3
-        # Lengths of sides opposite to parent point, ex. Point A is opposite to side a
-        a = np.linalg.norm(C - B)
-        b = np.linalg.norm(C - A)
-        c = np.linalg.norm(B - A)
+		#setting the points
+		A = self.points[0]
+		B = self.points[1]
+		C = self.points[2]
+		# Lengths of sides opposite to parent point, ex. Point A is opposite to side a
+		a = np.linalg.norm(C - B)
+		b = np.linalg.norm(C - A)
+		c = np.linalg.norm(B - A)
 
-        # Radius (r) equation of Circumcircle of a Triangle
-        s = (a + b + c) / 2
-        r = a * b * c / 4 / np.sqrt(s * (s - a) * (s - b) * (s - c))
+		# Radius (r) equation of Circumcircle of a Triangle
+		s = (a + b + c) / 2
+		r = a * b * c / 4 / np.sqrt(s * (s - a) * (s - b) * (s - c))
 
-        # location of circle center (cc) using circumcenter barcyntric coordinated
-        b1 = a * a * (b * b + c * c - a * a)
-        b2 = b * b * (a * a + c * c - b * b)
-        b3 = c * c * (a * a + b * b - c * c)
-        cc = np.column_stack((A, B, C)).dot(np.hstack((b1, b2, b3)))
-        cc /= b1 + b2 + b3
+		# location of circle center (cc) using circumcenter barcyntric coordinated
+		b1 = a * a * (b * b + c * c - a * a)
+		b2 = b * b * (a * a + c * c - b * b)
+		b3 = c * c * (a * a + b * b - c * c)
+		cc = np.column_stack((A, B, C)).dot(np.hstack((b1, b2, b3)))
+		cc /= b1 + b2 + b3
 
-        return r, cc
+		return r, cc
 
 
 
