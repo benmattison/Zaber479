@@ -25,3 +25,4 @@ ev = eval.evalPoints(vectors)
 
 print ev.lineAnalysis()
 print ev.circleAnalysis()
+print ev.evaluateArbitrary()

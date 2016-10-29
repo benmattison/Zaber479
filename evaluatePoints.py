@@ -16,7 +16,7 @@ class evalPoints(object):
 			point2line = np.linalg.norm(np.cross(lineVect,v-dataMean))
 			SSres = SSres+point2line*point2line
 			SStot = SStot+np.linalg.norm(v-dataMean)*np.linalg.norm(v-dataMean)
-		Rsquared = 1-SSres/SStot
+		Rsquare = 1-SSres/SStot
 		return vv[0], dataMean, Rsquare
 
 	def circleAnalysis(self):
@@ -52,7 +52,7 @@ class evalPoints(object):
 
 		return r, cc, normalVector, theta
 
-	def evaluateArbitrary(self)
+	def evaluateArbitrary(self):
 		circ_r, circ_cent, circ_axis, theta = circleAnalysis(self)
 		line_vect, line_cent, line_Rs = lineAnalysis(self)
 
