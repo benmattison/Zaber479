@@ -50,7 +50,10 @@ M1, M2, d1, d2, R, T, E, F, dims, T_real = datathings
 print('T real',T_real)
 print('')
 
-R1, R2, P1, P2, Q, roi1, roi2 = cv2.stereoRectify(M1, d1, M2, d2, dims, R, T_real)
+flags = 0
+flags |= cv2.CALIB_ZERO_DISPARITY
+
+R1, R2, P1, P2, Q, roi1, roi2 = cv2.stereoRectify(M1, d1, M2, d2, dims, R, T_real, alpha=-1, flags = flags)
 
 print('R1',R1)
 print('R2',R2)

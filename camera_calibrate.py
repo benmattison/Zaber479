@@ -4,7 +4,7 @@ import glob
 import argparse
 
 # TODO: If the image format changes, this needs to change.
-imageFormat = '.png'
+imageFormat = '.jpg'
 
 class StereoCalibration(object):
 	def __init__(self, filepath):
