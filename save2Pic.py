@@ -7,7 +7,7 @@ Rcam = cv2.VideoCapture(0)
 # 	camera.set(15,exposure)
 # 	camera.set(5,fps)
 
-exposure = -6
+exposure = -2
 fps = 5
 Logi1exposure = 0
 

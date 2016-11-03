@@ -4,7 +4,7 @@ import pickle
 from camera_calibrate import StereoCalibration
 
 # Perform calibration of the two cameras from a set of photos.
-cal = StereoCalibration('CalibrationPhotos/MinoruCalibration/')
+cal = StereoCalibration('CalibrationPhotos/Nov2Ben/')
 
 # Extract calibration information (matrices)
 # Intrinsic Camera Matrices
@@ -20,15 +20,15 @@ E = cal.camera_model.get('E') # Essential matrix
 F = cal.camera_model.get('F') # Fundamental metrix
 dims = cal.camera_model.get('dims')
 
-#sqr_size = 0.02365  # 23.65mm length of the printed calibration squares (DualLogi)
-sqr_size = 0.01425  # 14.25mm length of the printed calibration squares (MinoruCalibration)
+sqr_size = 0.02365  # 23.65mm length of the printed calibration squares (DualLogi)
+#sqr_size = 0.01425  # 14.25mm length of the printed calibration squares (MinoruCalibration)
 T_real = T*sqr_size
 
 # Save in CalibrationPhotos folder
 mypath = "CalibrationPhotos/"
 
 # Change file name based on calibraion setup
-calibrationName = "Minoru"
+calibrationName = "Nov2"
 
 datathings = (M1, M2, d1, d2, R, T, E, F, dims, T_real)
 outf = open(mypath + "arbitrary_stereo_calibration_" + calibrationName + ".pickle", "wb")
