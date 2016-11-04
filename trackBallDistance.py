@@ -27,14 +27,24 @@ minRad = 5
 
 # if we have uniform camera settings the color matching should work better
 # we should also explore some of the other .set options like hue.
-exposure = -6
+exposure = -20
 fps = 5
 # grab the reference to the webcams
-Lcam = cv2.VideoCapture(0)
-Rcam = cv2.VideoCapture(1)
+Lcam = cv2.VideoCapture(1)
+Rcam = cv2.VideoCapture(2)
 for camera in [Lcam, Rcam]:
-	camera.set(15,exposure)
-	camera.set(5,fps)
+	camera.set(15,exposure) # 15 is the code for exposure
+	camera.set(5,fps) # 5 is the code for FPS
+	camera.set(12,4) # 12 is code for saturation
+	print "Camera Properties"
+	print camera.get(10)
+	print camera.get(11)
+	print camera.get(12)
+	print camera.get(13)
+	print camera.get(14)
+	print camera.get(15)
+	print ''
+
 
 # Keeps track of the last 10 points for averaging.
 lastPoints = np.zeros((10,2,3),dtype=np.float)
@@ -105,7 +115,8 @@ while True:
 			# it to compute the minimum enclosing circle and
 			# centroid
 			c = max(cnts, key=cv2.contourArea)
-			((x, y), radius) = cv2.minEnclosingCircle(c)
+			((x, y), (d1, d2), angle) = cv2.fitEllipse(c)
+			radius = (d1+d2)/4
 			M = cv2.moments(c)
 			center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
 

@@ -39,11 +39,11 @@ def rescale(image, ratio): # Resize an image using linear interpolation
 # F = cal.camera_model.get('F') # Fundamental metrix
 # dims = cal.camera_model.get('dims')
 
-# sqr_size = 0.01425  # 14.25mm length of the printed calibration squares
+# sqr_size = 14.25  # 14.25mm length of the printed calibration squares
 # T_real = T*sqr_size
 
 mypath = "CalibrationPhotos/"
-infile = open(mypath + "arbitrary_stereo_calibration_DualLogi.pickle", "rb")
+infile = open(mypath + 'arbitrary_stereo_calibration_MinoruLarge.pickle', 'rb')
 datathings = pickle.load(infile)
 M1, M2, d1, d2, R, T, E, F, dims, T_real = datathings
 
@@ -53,7 +53,7 @@ print('')
 flags = 0
 flags |= cv2.CALIB_ZERO_DISPARITY
 
-R1, R2, P1, P2, Q, roi1, roi2 = cv2.stereoRectify(M1, d1, M2, d2, dims, R, T_real, alpha=-1, flags = flags)
+R1, R2, P1, P2, Q, roi1, roi2 = cv2.stereoRectify(M1, d1, M2, d2, dims, R, T, alpha=-1, flags = flags)
 
 print('R1',R1)
 print('R2',R2)
@@ -63,7 +63,7 @@ print('P2',P2)
 # an assortment of upper and lower bounds for the different colors we use in HSV.
 greenLower = (45, 86, 30)
 greenUpper = (80, 255, 255)
-pinkLower = (105, 60, 60)
+pinkLower = (140, 0, 180)
 pinkUpper = (170, 255, 255)
 blueLower = (115,100,70)
 blueUpper = (125,255,255)
@@ -81,17 +81,22 @@ minRad = 5
 (xReal, yReal, zReal) = (0,0,0)
 
 Lcam = cv2.VideoCapture(1)
-Rcam = cv2.VideoCapture(0)
-# for camera in [Lcam, Rcam]:
-# 	camera.set(15,exposure)
-# 	camera.set(5,fps)
+Rcam = cv2.VideoCapture(2)
+minoruExposure = -11
 Logi2exposure = -6
-fps = 5
 Logi1exposure = 0
-Lcam.set(15,Logi1exposure)
-Rcam.set(15,Logi2exposure)
-Lcam.set(5,fps)
-Rcam.set(5,fps)
+fps = 5
+
+for camera in [Lcam, Rcam]:
+	camera.set(15,minoruExposure)
+	camera.set(5,fps)
+
+# Lcam.set(15,Logi1exposure)
+# Rcam.set(15,Logi2exposure)
+# Lcam.set(5,fps)
+# Rcam.set(5,fps)
+
+pathPoints = []
 
 
 while True:
@@ -124,7 +129,11 @@ while True:
 		# it to compute the minimum enclosing circle and
 		# centroid
 		cL = max(cntsL, key=cv2.contourArea)
-		((xL, yL), radiusL) = cv2.minEnclosingCircle(cL)
+		cR = max(cntsR, key=cv2.contourArea)
+		if len(cL) < 10 or len(cL) < 10:
+			continue
+		((xL, yL), (d1, d2), angle) = cv2.fitEllipse(cL)
+		radiusL = (d1+d2)/4
 		ML = cv2.moments(cL)
 		centerL = (int(ML["m10"] / ML["m00"]), int(ML["m01"] / ML["m00"]))
 
@@ -137,8 +146,8 @@ while True:
 			cv2.circle(capL, centerL, 5, (0, 0, 255), -1)
 
 		# Repeat for Right side
-		cR = max(cntsR, key=cv2.contourArea)
-		((xR, yR), radiusR) = cv2.minEnclosingCircle(cR)
+		((xR, yR), (d1, d2), angle) = cv2.fitEllipse(cR)
+		radiusR = (d1+d2)/4
 		MR = cv2.moments(cR)
 		centerL = (int(ML["m10"] / ML["m00"]), int(ML["m01"] / ML["m00"]))
 
@@ -153,6 +162,7 @@ while True:
 	worldPoints = cv2.triangulatePoints(P1,P2,(xL,yL),(xR,yR))
 	worldPoints /= worldPoints[3]
 	worldPoints = worldPoints[:3]
+	worldPoints *= 0.02365*1000 # Size of the large calibration squares
 
 	# Scale by 4th homogeneous coordinate (Not sure about this actually)
 	xReal = worldPoints[0]
@@ -164,14 +174,14 @@ while True:
 	if key == ord("c"):
 		if not pathPoints:
 			pathPoints = [worldPoints]
-			print np.length(worldPoints)
+			print len(pathPoints)
 		else:
 			pathPoints.append(worldPoints)
-			print np.length(worldPoints)
+			print len(pathPoints)
 		print('worldPoints:', worldPoints)
 		print('')
 
-		if np.length(pathPoints) == 3:
+		if len(pathPoints) == 3:
 			outfile = open("pathPoints.pickle", "wb")
 			pickle.dump(pathPoints, outfile)
 

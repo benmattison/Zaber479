@@ -1,20 +1,24 @@
 import cv2
 
 
-Lcam = cv2.VideoCapture(1)
-Rcam = cv2.VideoCapture(0)
-# for camera in [Lcam, Rcam]:
-# 	camera.set(15,exposure)
-# 	camera.set(5,fps)
+saveLocation = 'CalibrationPhotos/MinoruCalibration/'
 
-exposure = -2
+
+exposure = -5
 fps = 5
-Logi1exposure = 0
+Lcam = cv2.VideoCapture(1)
+Rcam = cv2.VideoCapture(2)
+for camera in [Lcam, Rcam]:
+	camera.set(15,exposure)
+	camera.set(5,fps)
 
-Lcam.set(15,Logi1exposure)
-Rcam.set(15,exposure)
-Lcam.set(5,fps)
-Rcam.set(5,fps)
+
+# Logi1exposure = 0
+
+# Lcam.set(15,Logi1exposure)
+# Rcam.set(15,exposure)
+# Lcam.set(5,fps)
+# Rcam.set(5,fps)
 
 #photo number
 i = 0
@@ -35,8 +39,8 @@ while True:
 	key = cv2.waitKey(1)
 
 	if key == ord('p'):
-		cv2.imwrite('CalibrationPhotos/DualLogi/Stereo%d_L.png'%i, capL)
-		cv2.imwrite('CalibrationPhotos/DualLogi/Stereo%d_R.png'%i, capR)
+		cv2.imwrite(saveLocation+'Stereo%d_L.png'%i, capL)
+		cv2.imwrite(saveLocation+'Stereo%d_R.png'%i, capR)
 		i = i + 1
 		if i == p:
 			done = True	
