@@ -8,14 +8,42 @@ import glob
 
 # Get pre-calibrated camera setup
 mypath = "CalibrationPhotos/"
-infile = open(mypath + "arbitrary_stereo_calibration_DualLogi.pickle", "rb")
+infile = open(mypath + "arbitrary_stereo_calibration_Nov2.pickle", "rb")
 datathings = pickle.load(infile)
 M1, M2, d1, d2, R, T, E, F, dims, T_real = datathings
+
+print(M1)
+print('')
+print(M2)
+print('')
+print(T_real)
+print('')
 
 # Stereo Rectify to get projection matrices
 flags = 0
 flags |= cv2.CALIB_ZERO_DISPARITY
 R1, R2, P1, P2, Q, roi1, roi2 = cv2.stereoRectify(M1, d1, M2, d2, dims, R, T_real, alpha=-1, flags = flags)
+
+print(R)
+print('')
+print(R1)
+print('')
+print(R2)
+print('')
+print(P1)
+print('')
+print(P2)
+print('')
+
+print(P2[0,3]/P1[0,0])
+print('')
+
+# Modify P2 to not just be a translation in x
+#P2[:,3]=np.transpose(T_real*P1[0,0])
+
+print(P2)
+print('')
+
 
 # Image a and b are before and after moving the chessboard laterally ~20cm
 imageLa = glob.glob("CalibrationPhotos/Nov2Ben/test2a_L.png")
