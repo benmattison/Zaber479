@@ -1,17 +1,30 @@
 import cv2
 
-exposure = -6
+
+saveLocation = 'CalibrationPhotos/MinoruCalibration/'
+
+def rescale(image, ratio): # Resize an image using linear interpolation
+	if ratio == 1:
+		return image
+	dim = (int(image.shape[1] * ratio), int(image.shape[0] * ratio))
+	rescaled = cv2.resize(image, dim, interpolation = cv2.INTER_LINEAR)
+	return rescaled
+
+exposure = -5
 fps = 5
-Lcam = cv2.VideoCapture(2)
-Rcam = cv2.VideoCapture(1)
-# for camera in [Lcam, Rcam]:
-# 	camera.set(15,exposure)
-# 	camera.set(5,fps)
-Logi1exposure = -8
-Lcam.set(15,Logi1exposure)
-Rcam.set(15,exposure)
-Lcam.set(5,fps)
-Rcam.set(5,fps)
+Lcam = cv2.VideoCapture(1)
+Rcam = cv2.VideoCapture(2)
+for camera in [Lcam, Rcam]:
+	camera.set(15,exposure)
+	camera.set(5,fps)
+
+
+# Logi1exposure = 0
+
+# Lcam.set(15,Logi1exposure)
+# Rcam.set(15,exposure)
+# Lcam.set(5,fps)
+# Rcam.set(5,fps)
 
 #photo number
 i = 0
@@ -32,8 +45,10 @@ while True:
 	key = cv2.waitKey(1)
 
 	if key == ord('p'):
-		cv2.imwrite('CalibrationPhotos/DualLogi/Stereo%d_L.png'%i, capL)
-		cv2.imwrite('CalibrationPhotos/DualLogi/Stereo%d_R.png'%i, capR)
+		LcapL = rescale(capL, 4)
+		LcapR = rescale(capR, 4)
+		cv2.imwrite(saveLocation+'Stereo%d_L.png'%i, LcapL)
+		cv2.imwrite(saveLocation+'Stereo%d_R.png'%i, LcapR)
 		i = i + 1
 		if i == p:
 			done = True	

@@ -3,9 +3,6 @@ import cv2
 import glob
 import argparse
 
-# TODO: If the inage format changes, this needs to change.
-imageFormat = '.png'
-
 class StereoCalibration(object):
 	def __init__(self, filepath):
 		# termination criteria
@@ -27,8 +24,8 @@ class StereoCalibration(object):
 		self.read_images(self.cal_path)
 
 	def read_images(self, cal_path):
-		images_right = glob.glob(cal_path + 'RIGHT/*'+imageFormat)
-		images_left = glob.glob(cal_path + 'LEFT/*'+imageFormat)
+		images_right = glob.glob(cal_path + 'RIGHT/*')
+		images_left = glob.glob(cal_path + 'LEFT/*')
 		images_left.sort()
 		images_right.sort()
 
