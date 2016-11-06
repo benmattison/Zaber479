@@ -3,6 +3,12 @@ import cv2
 
 saveLocation = 'CalibrationPhotos/MinoruCalibration/'
 
+def rescale(image, ratio): # Resize an image using linear interpolation
+	if ratio == 1:
+		return image
+	dim = (int(image.shape[1] * ratio), int(image.shape[0] * ratio))
+	rescaled = cv2.resize(image, dim, interpolation = cv2.INTER_LINEAR)
+	return rescaled
 
 exposure = -5
 fps = 5
@@ -39,8 +45,10 @@ while True:
 	key = cv2.waitKey(1)
 
 	if key == ord('p'):
-		cv2.imwrite(saveLocation+'Stereo%d_L.png'%i, capL)
-		cv2.imwrite(saveLocation+'Stereo%d_R.png'%i, capR)
+		LcapL = rescale(capL, 4)
+		LcapR = rescale(capR, 4)
+		cv2.imwrite(saveLocation+'Stereo%d_L.png'%i, LcapL)
+		cv2.imwrite(saveLocation+'Stereo%d_R.png'%i, LcapR)
 		i = i + 1
 		if i == p:
 			done = True	
