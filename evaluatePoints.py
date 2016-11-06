@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 class evalPoints(object):
 	def __init__(self, points):
@@ -7,7 +9,7 @@ class evalPoints(object):
 
 	def lineAnalysis(self):
 		# Determines the best fit of a set of 3 points, with the center point
-		dataMean = self.points.mean(axis=0)
+		dataMean = np.mean(self.points,axis=0)
 		uu, dd, vv = np.linalg.svd(self.points-dataMean)
 		lineVect = vv[0]
 		SSres = 0
@@ -67,3 +69,11 @@ class evalPoints(object):
 			axisVect = circ_axis
 
 		return isRotary, centerPoint, axisVect
+
+	def plotPoints(self):
+		fig = plt.figure()
+		ax = fig.add_subplot(111, projection='3d')
+		ax.scatter(points[0],points[1],points[2])
+
+		fig.show()
+

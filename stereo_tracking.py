@@ -4,6 +4,8 @@ import cv2
 import pickle
 # Import some open source code
 from camera_calibrate import StereoCalibration
+# Import our own code
+import evaluatePoints
 
 def filterColor(image, lowerHSV, upperHSV): # Filter out a certain set of colors from an image
 	# # resize the frame, blur it, and convert it to the HSV
@@ -217,11 +219,11 @@ while True:
 	if key == ord("c"):
 
 		# Find coordinates in 3D space using the triangulatePoints function for the centers of the circles
-		worldPoints = cv2.triangulatePoints(P1,P2,(xL,yL),(xR,yR))
-		worldPoints1 = iterTriangulate(P1,P2,(xL,yL),(xR,yR))
+		# worldPoints1 = cv2.triangulatePoints(P1,P2,(xL,yL),(xR,yR))
+		worldPoints = iterTriangulate(P1,P2,(xL,yL),(xR,yR))
 		worldPoints /= worldPoints[3]
 		print('worldPoints:', worldPoints)
-		print('worldPoints1:', worldPoints1)
+		# print('worldPoints1:', worldPoints1)
 
 		worldPoints = worldPoints[:3]
 		worldPoints *= 0.02365*1000 # Size of the large calibration squares
@@ -243,6 +245,10 @@ while True:
 		if len(pathPoints) == 3:
 			outfile = open("pathPoints.pickle", "wb")
 			pickle.dump(pathPoints, outfile)
+
+			Ev = evaluatePoints.evalPoints(pathPoints)
+			print Ev.evaluateArbitrary()
+			Ev.plotPoints()
 
 	capL = rescale(capL, 1.0 / scaleR)
 	capR = rescale(capR, 1.0 / scaleR)
