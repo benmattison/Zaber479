@@ -7,10 +7,10 @@ import sys
 import glob
 
 def send_rec(msg):
-	ser.write(msg)
-	line = ser.readline()
-	print(line)
-	return line
+    ser.write(msg)
+    line = ser.readline()
+    print(line)
+    return line
 
 def serial_ports():
     """ Lists serial port names
@@ -55,17 +55,17 @@ msgs = ['/1 move rel 20000\n','/1 move abs 300000\n','/1 home\n']
 
 # Send them all and see if they are ready.
 for msg in msgs:
-	line = send_rec(msg)
-	# Assume that the stage is doing something.
-	busy = 1
-	while busy:
-		# Send a command that just asks for the status of device 1.
-		line = send_rec('/1 \n')
-		# If it is not doing anything, we can send a new command.
-		if 'IDLE' in line:
-			# busy = 0
-			break
-		time.sleep(0.5)
+    line = send_rec(msg)
+    # Assume that the stage is doing something.
+    busy = 1
+    while busy:
+        # Send a command that just asks for the status of device 1.
+        line = send_rec('/1 \n')
+        # If it is not doing anything, we can send a new command.
+        if 'IDLE' in line:
+            # busy = 0
+            break
+        time.sleep(0.5)
 
 # Check if there are any unread lines
 line = ser.readlines()

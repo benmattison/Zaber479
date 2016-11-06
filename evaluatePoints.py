@@ -3,24 +3,24 @@ import numpy as np
 
 
 class evalPoints(object):
-	def __init__(self, points):
-		# termination criteria
-		self.points = points
+    def __init__(self, points):
+        # termination criteria
+        self.points = points
 
-	def lineAnalysis(self):
-		# Determines the best fit of a set of 3 points, with the center point
-		dataMean = self.points.mean(axis=0)
-		uu, dd, vv = np.linalg.svd(self.points-dataMean)
-		lineVect = vv[0]
-		error = 0
-		for v in self.points:
-			point2line = np.linalg.norm(np.cross(lineVect,v-dataMean))
-			error = error+point2line
-		avgError = error/length(self.points)
-		return vv[0], dataMean, avgError
+    def lineAnalysis(self):
+        # Determines the best fit of a set of 3 points, with the center point
+        dataMean = self.points.mean(axis=0)
+        uu, dd, vv = np.linalg.svd(self.points-dataMean)
+        lineVect = vv[0]
+        error = 0
+        for v in self.points:
+            point2line = np.linalg.norm(np.cross(lineVect,v-dataMean))
+            error = error+point2line
+        avgError = error/length(self.points)
+        return vv[0], dataMean, avgError
 
-	def circleAnalysis(self):
-	    # Determine the radius and center of a circle
+    def circleAnalysis(self):
+        # Determine the radius and center of a circle
 
         #setting the points
         A = self.points.points1
@@ -43,13 +43,13 @@ class evalPoints(object):
         cc /= b1 + b2 + b3
 
         #Getting normal vector for circle
-	    normalvector = np.cross(a, b)
+        normalvector = np.cross(a, b)
 
-	    #calculating the angle of the plane to the x, y plane
+        #calculating the angle of the plane to the x, y plane
         normalXY = [0, 0, 1] #normal vecor to x,y plane
-		lengthXY = np.linalg.norm(normalXY) #length x, y plane
-		length_normalvecotr = np.linalg.norm(normalvector) #length of the normal vector
-		theta = np.arccos((np.dot(normalvector, normalXY))/(lengthXY*length_normalvecotr))
+        lengthXY = np.linalg.norm(normalXY) #length x, y plane
+        length_normalvecotr = np.linalg.norm(normalvector) #length of the normal vector
+        theta = np.arccos((np.dot(normalvector, normalXY))/(lengthXY*length_normalvecotr))
 
         return r, cc, normalvector, theta
 
