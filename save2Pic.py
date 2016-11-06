@@ -51,7 +51,7 @@ while True:
 		cv2.imwrite(saveLocation+'Stereo%d_R.png'%i, LcapR)
 		i = i + 1
 		if i == p:
-			done = True	
+			done = True
 	elif key == ord('q'):
 		done = True
 
