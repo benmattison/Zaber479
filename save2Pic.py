@@ -30,7 +30,7 @@ for camera in [Lcam, Rcam]:
 i = 0
 
 # number of photos
-p = 10
+p = 20
 
 L = True
 done = False
