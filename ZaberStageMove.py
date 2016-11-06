@@ -1,4 +1,4 @@
-from zaber.serial import AsciiSerial, AsciiDevice, AsciiCommand, AsciiReply, AsciiAxis, BinarySerial, BinaryDevice, BinaryCommand, BinaryReply
+from zaber.serial import AsciiSerial, AsciiDevice, AsciiCommand, AsciiReply, AsciiAxis
 import time
 
 #This is an example on how to initiate the  motion devices and give them commands
@@ -23,18 +23,26 @@ def check_command_succeeded(reply):
 
 # Open a serial port. You may need to edit this section for your particular
 # hardware and OS setup.
-port = AsciiSerial("COM3")         # Windows
+port = AsciiSerial("COM3")
 
 # Get a handle for device #1 on the serial chain. This assumes you have a
 # device already in ASCII 115,220 baud mode at address 1 on your port.
-device = AsciiDevice(port, 1)# Device number 1
-device2 = AsciiDevice(port, 2)# Device number 2
-device3 = AsciiDevice(port,3)# Device number 3
+# Finds how many devices there are and homes them all
+d = {}
+for i in range (1,10):
+    try:
+        d['device{0}'.format(i)] = AsciiDevice(port, i)# Device number i
+        d['device%s' %i].home()
+    except:
+        break
 
+print(i)
+#device2 = AsciiDevice(port, 2)  # Device number 2
+#device3 = AsciiDevice(port, 3)  # Device number 3
 #Initializing the devices as axis uneccessary  for devices with only one axis, for demonstration.
-axis1 = device.axis(1)
-axis2 = device2.axis(1)
-axis3 = device3.axis(1)
+axis1 = d['device1'].axis(1)
+axis2 = d['device2'].axis(1)
+axis3 = d['device3'].axis(1)
 
 
 reply1 = axis1.home() # Home the fist axis and check the result.
@@ -67,16 +75,16 @@ axis2.home()
 
 #Now move the device to a non-home position.
 #Device also works the same as axis for devices with only one axis
-reply1 = device.move_abs(200000) # move to absolute position of 200000 microsteps relative to home
+reply1 = d['device1'].move_abs(200000) # move to absolute position of 200000 microsteps relative to home
 if not check_command_succeeded(reply1):
     print("Device move failed.")
     exit(1)
 
 #Wait for the move to finish.
-device.poll_until_idle()
+d['device1'].poll_until_idle()
 
 #Read back what position the device thinks it's at.
-reply = device.send("get pos")
+reply = d['device1'].send("get pos")
 print("Device position is now " + reply.data)
 
 # Clean up.
