@@ -1,7 +1,7 @@
 import cv2
 
 
-saveLocation = 'CalibrationPhotos/MinoruCalibration/'
+saveLocation = 'CalibrationPhotos/MinoruCalibration10x12/'
 
 def rescale(image, ratio): # Resize an image using linear interpolation
 	if ratio == 1:
@@ -45,10 +45,11 @@ while True:
 	key = cv2.waitKey(1)
 
 	if key == ord('p'):
-		LcapL = rescale(capL, 4)
-		LcapR = rescale(capR, 4)
-		cv2.imwrite(saveLocation+'Stereo%d_L.png'%i, LcapL)
-		cv2.imwrite(saveLocation+'Stereo%d_R.png'%i, LcapR)
+		# This fucked with everything.
+		# LcapL = rescale(capL, 4)
+		# LcapR = rescale(capR, 4)
+		cv2.imwrite(saveLocation+'Stereo%d_L.png'%i, capL)
+		cv2.imwrite(saveLocation+'Stereo%d_R.png'%i, capR)
 		i = i + 1
 		if i == p:
 			done = True

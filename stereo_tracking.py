@@ -59,7 +59,6 @@ def iterTriangulate(P1, P2, point1, point2):
 		w1_new = np.dot(P1[2],X)
 		w2_new = np.dot(P2[2],X)
 
-		print([abs(w1-w1_new), abs(w2-w2_new)])
 		if max([abs(w1-w1_new), abs(w2-w2_new)]) < EPSILON:
 			break
 
@@ -68,44 +67,28 @@ def iterTriangulate(P1, P2, point1, point2):
 
 	return X
 
-
-
-
-# # Perform calibration of the two cameras from a set of photos.
-# cal = StereoCalibration('CalibrationPhotos/DualLogi/')
-# # Extract calibration information (matrices)\
-# # Intrinsic Camera Matrices
-# M1 = cal.camera_model.get('M1')
-# M2 = cal.camera_model.get('M2')
-# # Distortion Matrixes
-# d1 = cal.camera_model.get('d1')
-# d2 = cal.camera_model.get('d2')
-# R = cal.camera_model.get('R') # Relative rotation matrix between first and second
-# T = cal.camera_model.get('T') # Relative translation vector between first and second
-# E = cal.camera_model.get('E') # Essential matrix
-# F = cal.camera_model.get('F') # Fundamental metrix
-# dims = cal.camera_model.get('dims')
-
-# sqr_size = 14.25  # 14.25mm length of the printed calibration squares
+sqr_size = 37.67  # 14.25mm, 19.25mm, 23.65mm, 37.67mm length of the printed calibration squares
 # T_real = T*sqr_size
 
 mypath = "CalibrationPhotos/"
-infile = open(mypath + 'arbitrary_stereo_calibration_MinoruLarge.pickle', 'rb')
+infile = open(mypath + 'arbitrary_stereo_calibration_MinoruXL.pickle', 'rb')
 datathings = pickle.load(infile)
-M1, M2, d1, d2, R, T, E, F, dims, T_real = datathings
+M1, M2, d1, d2, R, T, E, F, dims = datathings
 
-print('T real',T_real)
-print('')
+print('T', T)
+print('T*sqr', T*sqr_size)
 
 flags = 0
 flags |= cv2.CALIB_ZERO_DISPARITY
 
 R1, R2, P1, P2, Q, roi1, roi2 = cv2.stereoRectify(M1, d1, M2, d2, dims, R, T, alpha=-1, flags = flags)
-
-print('R1',R1)
-print('R2',R2)
-print('P1',P1)
-print('P2',P2)
+print('R1', R1)
+print('R2', R2)
+print('P1', P1)
+print('P2', P2)
+print('Q', Q)
+print('roi1', roi1)
+print('roi2', roi2)
 
 # an assortment of upper and lower bounds for the different colors we use in HSV.
 greenLower = (45, 86, 30)
@@ -158,9 +141,11 @@ while True:
 
 	# Going to scale up by this ratio for better analysis
 	if key == ord("c"):
-		scaleR = 4
+		scaleR = 1
+		bigPicFlag = 1
 	else:
 		scaleR = 1
+		bigPicFlag = 0
 
 	# Perform the actual resizing of the image using bilinear interpolation
 	capL_orig = capL
@@ -222,11 +207,12 @@ while True:
 		# worldPoints1 = cv2.triangulatePoints(P1,P2,(xL,yL),(xR,yR))
 		worldPoints = iterTriangulate(P1,P2,(xL,yL),(xR,yR))
 		worldPoints /= worldPoints[3]
-		print('worldPoints:', worldPoints)
 		# print('worldPoints1:', worldPoints1)
 
 		worldPoints = worldPoints[:3]
-		worldPoints *= 0.02365*1000 # Size of the large calibration squares
+		worldPoints *= sqr_size # Size of the large calibration squares
+
+		print('worldPoints:', worldPoints)
 
 		# Scale by 4th homogeneous coordinate (Not sure about this actually)
 		xReal = worldPoints[0]

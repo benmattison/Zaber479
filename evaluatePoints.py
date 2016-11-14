@@ -73,7 +73,14 @@ class evalPoints(object):
 	def plotPoints(self):
 		fig = plt.figure()
 		ax = fig.add_subplot(111, projection='3d')
-		ax.scatter(points[0],points[1],points[2])
+		printPoints = np.array(self.points)
+		minP = np.amin(printPoints)
+		maxP = np.amax(printPoints)
+		ax.scatter(printPoints[:,0],-1*printPoints[:,1],printPoints[:,2],zdir = 'y')
+
+		ax.set_xlim3d(minP-100,maxP+100)
+		ax.set_ylim3d(minP-100,maxP+100)
+		ax.set_zlim3d(0,maxP+100)
 
 		fig.show()
 
