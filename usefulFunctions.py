@@ -57,4 +57,39 @@ def find_cameras():
 			cam_list.append(cam_int)
 	return cam_list
 
+def select_cameras(camList):
+	Lcam = -1
+	Rcam = -1
+	for cam_int in camList:
+		cam = cv2.VideoCapture(cam_int)
+		stereoCam = False
+		selected = False
+		if len(camList) > 2:
+			print("Is this a stereo camera? [y, n]")
+			while selected == False:
+				cv2.imshow("Camera "+str(cam_int), cam)
+				key = cv2.waitkey(2)
+				if key == ord("y"):
+					stereoCam = True
+					selected = True
+				elif key == ord("n"):
+					stereoCam = False
+					selected = True
+		else:
+			stereoCam = True
 
+		if not stereoCam:
+			continue
+
+		selected = False
+		print("Is this the left camera? [y, n]")
+		while selected == False:
+			cv2.imshow("Camera "+str(cam_int), cam)
+			key = cv2.waitkey(2)
+			if key == ord("y"):
+				Lcam_int = cam_int
+				selected = True
+			elif key == ord("n"):
+				Rcam_int = cam_int
+				selected = True
+	return Lcam_int, Rcam_int

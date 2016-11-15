@@ -12,7 +12,13 @@ us.print_wait(welcomeMess)
 camList = us.find_cameras()
 if len(camList) < 2:
 	us.print_wait("There are not enough cameras detected on this system.")
-	sys.exit()
+	# sys.exit()
+elif len(camList) == 2:
+	us.print_wait("Stereo cameras detected. Continue to initialize cameras.")
+else:
+	us.print_wait("Multiple cameras detected. You will need to select which cameras are which.")
+
+Lcam_int, Rcam_int = us.select_cameras(camList)
 
 # Have the user select if they want to do a camera calibration or not. If not, load a default calibration.
 calFile = find_calibration()
