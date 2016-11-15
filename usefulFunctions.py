@@ -1,4 +1,7 @@
 import cv2
+import sys
+import os
+import fnmatch
 
 def dumFunc(funcName):
 	# dummy function, doesn't do anything.
@@ -24,5 +27,34 @@ def get_answer(prompt, answerList):
 			return answer
 		print "Invalid response!"
 
+def print_wait(message):
+	response = raw_input(message+"\n [Press ENTER to continue or Q+ENTER to quit]").lower()
+	if 'q' in response:
+		print "exiting"
+		sys.exit()
+
+def find_calibration():
+	directory = 'Calibration'
+	if not os.path.exists(directory):
+		makeFolder = get_bool("Cannot find the calibration folder, do you want to create one?")
+		if makeFolder:
+			os.makedirs(directory)
+			return None
+	else:
+		for file in os.listdir(directory):
+			if fnmatch.fnmatch(file, 'calibration*.pickle'):
+				usePickle = get_bool("Found calibration file "+file+"\nDo you want to use this?")
+				if usePickle:
+					return file
+	return None
+
+
 def find_cameras():
-	for cam_int in 
+	cam_list = []
+	for cam_int in range(6):
+		cam = cv2.VideoCapture(cam_int)
+		if cam.isOpened():
+			cam_list.append(cam_int)
+	return cam_list
+
+
