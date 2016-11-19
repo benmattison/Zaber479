@@ -1,7 +1,9 @@
 import usefulFunctions as us
 import zaberCommands as zc
 import evaluatePoints as ev
-import stereo_tracking as st
+import stereoTracking as st
+import robotFunctions as rb
+import calibrateCameras as cb
 import pickle
 import sys
 
