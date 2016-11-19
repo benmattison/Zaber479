@@ -62,13 +62,19 @@ def select_cameras(camList):
 	Rcam = -1
 	for cam_int in camList:
 		cam = cv2.VideoCapture(cam_int)
+		exposure = -11
+		fps = 5
+		cam.set(cv2.CAP_PROP_EXPOSURE, exposure)
+		cam.set(cv2.CAP_PROP_FPS, fps)
+
 		stereoCam = False
 		selected = False
 		if len(camList) > 2:
 			print("Is this a stereo camera? [y, n]")
 			while selected == False:
-				cv2.imshow("Camera "+str(cam_int), cam)
-				key = cv2.waitkey(2)
+				ret,cap = cam.read()
+				cv2.imshow("Camera "+str(cam_int), cap)
+				key = cv2.waitKey(2)
 				if key == ord("y"):
 					stereoCam = True
 					selected = True
@@ -79,17 +85,22 @@ def select_cameras(camList):
 			stereoCam = True
 
 		if not stereoCam:
+			cam.release()
+			cv2.destroyAllWindows()
 			continue
 
 		selected = False
 		print("Is this the left camera? [y, n]")
 		while selected == False:
-			cv2.imshow("Camera "+str(cam_int), cam)
-			key = cv2.waitkey(2)
+			ret,cap = cam.read()
+			cv2.imshow("Camera "+str(cam_int), cap)
+			key = cv2.waitKey(2)
 			if key == ord("y"):
 				Lcam_int = cam_int
 				selected = True
 			elif key == ord("n"):
 				Rcam_int = cam_int
 				selected = True
+		cam.release()
+		cv2.destroyAllWindows()
 	return Lcam_int, Rcam_int

@@ -95,19 +95,21 @@ def getHSVBounds(**kwargs):
 
 class StereoTracker(object):
 	def __init__(self,calFile,sqSize):
-		calConstants = pickle.load(calFile)
-		self.M1, self.M2, self.d1, self.d2, self.R, self.T, self.E, self.F, self.dims = calConstants
-		flags = 0
-		flags |= cv2.CALIB_ZERO_DISPARITY
-		self.R1, self.R2, self.P1, self.P2, self.Q, self.roi1, self.roi2 = cv2.stereoRectify(self.M1, self.d1, self.M2, self.d2, self.dims, self.R, self.T, alpha=-1, flags=flags)
+		# calConstants = pickle.load(calFile)
+		# self.M1, self.M2, self.d1, self.d2, self.R, self.T, self.E, self.F, self.dims = calConstants
+		# flags = 0
+		# flags |= cv2.CALIB_ZERO_DISPARITY
+		# self.R1, self.R2, self.P1, self.P2, self.Q, self.roi1, self.roi2 = cv2.stereoRectify(self.M1, self.d1, self.M2, self.d2, self.dims, self.R, self.T, alpha=-1, flags=flags)
 		self.sqSize = sqSize
 
 	def initializeCameras(self,Lcam_index,Rcam_index,**kwargs):
 		self.Lcam = cv2.VideoCapture(Lcam_index)
 		self.Rcam = cv2.VideoCapture(Rcam_index)
 
+		# Defaults for Minoru
 		exposure = -11
 		fps = 5
+		# Adjust if needed
 		for key in kwargs:
 			if key == 'exposure':
 				exposure = kwargs[key]
@@ -115,8 +117,18 @@ class StereoTracker(object):
 				fps = kwargs[key]
 
 		for camera in [self.Lcam, self.Rcam]:
-			camera.set(15, exposure)
-			camera.set(5, fps)
+			camera.set(cv2.CAP_PROP_EXPOSURE, exposure)
+			camera.set(cv2.CAP_PROP_FPS, fps)
+			camera.set(cv2.CAP_PROP_FRAME_HEIGHT,480)
+			camera.set(cv2.CAP_PROP_FRAME_HEIGHT,640)
+
+
+	def showVideo(self):
+		retR, capR = self.Rcam.read()
+		retL, capL = self.Lcam.read()
+		cv2.imshow('Rcam',capR)
+		cv2.imshow('Lcam',capL)
+
 
 	def trackBall(self,colour):
 		lower, upper = getHSVBounds(hsv=colour)
