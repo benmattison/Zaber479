@@ -119,16 +119,26 @@ class StereoTracker(object):
 		for camera in [self.Lcam, self.Rcam]:
 			camera.set(cv2.CAP_PROP_EXPOSURE, exposure)
 			camera.set(cv2.CAP_PROP_FPS, fps)
-			camera.set(cv2.CAP_PROP_FRAME_HEIGHT,480)
-			camera.set(cv2.CAP_PROP_FRAME_HEIGHT,640)
+			camera.set(cv2.CAP_PROP_FORMAT,cv2.CV_8UC3)
+			camera.set(cv2.CAP_PROP_FRAME_WIDTH,320*2)
+			camera.set(cv2.CAP_PROP_FRAME_HEIGHT,240*2)
+			print(camera.get(cv2.CAP_PROP_FORMAT))
+			print(camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
+			print(camera.get(cv2.CAP_PROP_FPS))
 
 
 	def showVideo(self):
-		retR, capR = self.Rcam.read()
-		retL, capL = self.Lcam.read()
+		# retR, capR = self.Rcam.read()
+		# retL, capL = self.Lcam.read()
+
+		retR = self.Rcam.grab()
+		retL = self.Lcam.grab()
+		if retR and retL:
+			retR, capR = self.Rcam.retrieve()
+			retL, capL = self.Lcam.retrieve()
+
 		cv2.imshow('Rcam',capR)
 		cv2.imshow('Lcam',capL)
-
 
 	def trackBall(self,colour):
 		lower, upper = getHSVBounds(hsv=colour)

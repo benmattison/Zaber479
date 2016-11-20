@@ -29,3 +29,21 @@ while True:
     key = cv2.waitKey(1)
     if key == ord('q'):
         break
+
+# cam = cv2.VideoCapture(1)
+# cam.set(cv2.CAP_PROP_FORMAT,cv2.CV_8UC1)
+# cam.set(cv2.CAP_PROP_FPS,5)
+# cam.set(cv2.CAP_PROP_FRAME_HEIGHT,240)
+# cam.set(cv2.CAP_PROP_FRAME_WIDTH,320)
+# while True:
+#     ret = cam.grab()
+#     if ret:
+#         retR, capR = cam.retrieve()
+#         retL, capL = cam.retrieve()
+#
+#     cv2.imshow('Rcam', capR)
+#     cv2.imshow('Lcam', capL)
+
+    key = cv2.waitKey(1)
+    if key == ord('q'):
+        break
