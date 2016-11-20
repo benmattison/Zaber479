@@ -3,6 +3,23 @@ import glob
 import argparse
 import numpy as np
 
+def setParams(camera):
+	EXPOSURE_PARAM = 15
+	FPS_PARAM = 5
+
+	exposure = -5
+	fps = 5
+
+	camera.set(EXPOSURE_PARAM, exposure)
+	camera.set(FPS_PARAM, fps)
+
+def rescale(image, ratio):  # Resize an image using linear interpolation
+	if ratio == 1:
+		return image
+	dim = (int(image.shape[1] * ratio), int(image.shape[0] * ratio))
+	rescaled = cv2.resize(image, dim, interpolation=cv2.INTER_LINEAR)
+	return rescaled
+
 class Save1Pic(object):
 	def __init__(self,savePath,numPics,camIndex,rescaleSize):
 		self.saveLocation = savePath
@@ -11,26 +28,9 @@ class Save1Pic(object):
 
 		self.cam = cv2.VideoCapture(camIndex)
 
-		self.setParams(self.cam)
+		setParams(self.cam)
 
 		self.main()
-
-	def rescale(self, image, ratio):  # Resize an image using linear interpolation
-		if ratio == 1:
-			return image
-		dim = (int(image.shape[1] * ratio), int(image.shape[0] * ratio))
-		rescaled = cv2.resize(image, dim, interpolation=cv2.INTER_LINEAR)
-		return rescaled
-
-	def setParams(self, camera):
-		EXPOSURE_PARAM = 15
-		FPS_PARAM = 5
-
-		exposure = -5
-		fps = 5
-
-		camera.set(EXPOSURE_PARAM, exposure)
-		camera.set(FPS_PARAM, fps)
 
 	def main(self):
 		i = 0
@@ -58,7 +58,7 @@ class Save1Pic(object):
 
 
 class Save2Pic(object):
-	def __init__(self,savePath,numPics,leftCamIndex,rightCamIndex,rescaleSize):
+	def __init__(self,savePath,numPics,leftCamIndex,rightCamIndex,rescaleSize, displayPattern = False, chessBoardSize = [9,6]):
 		self.saveLocation = savePath
 		self.maxPic =  numPics
 		self.rescaleSize = rescaleSize
@@ -66,12 +66,12 @@ class Save2Pic(object):
 		self.Lcam = cv2.VideoCapture(leftCamIndex)
 		self.Rcam = cv2.VideoCapture(rightCamIndex)
 
-		Save1Pic.setParams(self.Lcam)
-		Save1Pic.setParams(self.Rcam)
+		setParams(self.Lcam)
+		setParams(self.Rcam)
 
-		self.main()
+		self.main(displayPattern, chessBoardSize)
 
-	def main(self):
+	def main(self, displayPattern = False, patSize = [9,6]):
 		i = 0
 		done = False
 
@@ -79,16 +79,57 @@ class Save2Pic(object):
 			retL, capL = self.Lcam.read()
 			retR, capR = self.Rcam.read()
 
-			cv2.imshow('imgL', capL)
-			cv2.imshow('imgR', capR)
+			capLorig = capL
+			capRorig = capR
 
-			key = cv2.waitKey(1)
+			# Useful to display the chessboard pattern
+			if displayPattern:
+				# criteria = (cv2.TERM_CRITERIA_MAX_ITER, 4)
+				criteria = (cv2.TERM_CRITERIA_MAX_ITER +
+								cv2.TERM_CRITERIA_EPS, 4, 1e-5)
+				winSize = (11,11)
+
+				gray_l = cv2.cvtColor(capL, cv2.COLOR_BGR2GRAY)
+				gray_r = cv2.cvtColor(capR, cv2.COLOR_BGR2GRAY)
+
+				# Find the chess board corners
+				hasCorners_L, corners_l = cv2.findChessboardCorners(gray_l, (patSize[0], patSize[1]))
+				if hasCorners_L:
+					hasCorners_R, corners_r = cv2.findChessboardCorners(gray_r, (patSize[0], patSize[1]))
+				else:
+					hasCorners_R = False
+
+				if hasCorners_L is True:
+					rt = cv2.cornerSubPix(gray_l, corners_l, winSize, (-1, -1), criteria)
+					# Draw and display the corners
+					cv2.drawChessboardCorners(capL, (patSize[0], patSize[1]),
+													  corners_l, hasCorners_L)
+
+
+				if hasCorners_R is True:
+					rt = cv2.cornerSubPix(gray_r, corners_r, winSize, (-1, -1), criteria)
+					# Draw and display the corners
+					cv2.drawChessboardCorners(capR, (patSize[0], patSize[1]),
+													  corners_r, hasCorners_R)	
+			else: # if we aren't checking for corners, assume they are there.
+				hasCorners_R = True
+				hasCorners_L = True		
+
+			if retL:
+				cv2.imshow('imgL', capL)
+			if retR:
+				cv2.imshow('imgR', capR)
+
+			key = cv2.waitKey(20)
 			if key == ord('p'):
-				LcapL = Save1Pic.rescale(capL, self.rescaleSize)
-				LcapR = Save1Pic.rescale(capR, self.rescaleSize)
-				cv2.imwrite(self.saveLocation+'Stereo%d_L.png'%i, LcapL)
-				cv2.imwrite(self.saveLocation+'Stereo%d_R.png'%i, LcapR)
-				i = i + 1
+				if not (hasCorners_R and hasCorners_L):
+					print('Chessboard pattern not found in both images. No picture saved.')
+				else: 
+					LcapL = rescale(capLorig, self.rescaleSize)
+					LcapR = rescale(capRorig, self.rescaleSize)
+					cv2.imwrite(self.saveLocation+'Stereo%d_L.png'%i, LcapL)
+					cv2.imwrite(self.saveLocation+'Stereo%d_R.png'%i, LcapR)
+					i = i + 1
 				if i == self.maxPic:
 					done = True
 			elif key == ord('q'):
