@@ -34,7 +34,7 @@ def print_wait(message):
 		sys.exit()
 
 def find_calibration():
-	directory = 'Calibration'
+	directory = 'CalibrationPhotos'
 	if not os.path.exists(directory):
 		makeFolder = get_bool("Cannot find the calibration folder, do you want to create one?")
 		if makeFolder:
@@ -42,7 +42,7 @@ def find_calibration():
 			return None
 	else:
 		for file in os.listdir(directory):
-			if fnmatch.fnmatch(file, 'calibration*.pickle'):
+			if fnmatch.fnmatch(file, 'calibration*.json'):
 				usePickle = get_bool("Found calibration file "+file+"\nDo you want to use this?")
 				if usePickle:
 					return file

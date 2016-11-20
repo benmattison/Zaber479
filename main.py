@@ -1,10 +1,9 @@
 import usefulFunctions as us
-import zaberCommands as zc
+# import zaberCommands as zc
 import evaluatePoints as ev
 import stereoTracking as st
 import robotFunctions as rb
 import calibrateCameras as cb
-import pickle
 import sys
 
 
@@ -27,20 +26,18 @@ else:
 Lcam_int, Rcam_int = us.select_cameras(camList)
 
 # Have the user select if they want to do a camera calibration or not. If not, load a default calibration.
-calFile = find_calibration()
+calFile = us.find_calibration()
 
 if calFile:
-	calConstants = pickle.load(calFile)
+	calConstants = cb.loadCalibration(calFile)
 else:
-# certain = False
-# while not certain:
-# 	answer = us.get_bool("\nWould you like to calibrate the cameras?")
-# 	action = {True:"perform camera calibration",False:"skip camera calibration and use default parameters"}[answer]
-# 	certain = us.get_bool("\nAre you srue you want to "+action+"?")
-# if answer:
-# 	us.dumFunc("calibrateCameras")
-	us.dumFunc("calibrateCameras")
-
+	us.print_wait("No calibration file selected. You will need to take pictures.")
+	saveFolder = raw_input("Please enter a name for the folder containing the images.")
+	if not saveFolder:
+		saveFolder = "tempPhotos"
+	photoPath = cb.saveCaliPhotos(Lcam_int, Rcam_int, saveFolder)
+	caliPath = cb.calibrateFromPics([9,6],photoPath,saveFolder)
+	calConstants = cb.loadCalibration(caliPath)
 
 # For calibration, have markers on the screen that identify where the pattern should go. Automatically take pictures when it is there.
 # Save the calibration data to a readable file.
