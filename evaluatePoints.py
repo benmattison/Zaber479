@@ -78,9 +78,13 @@ class evalPoints(object):
 		maxP = np.amax(printPoints)
 		ax.scatter(printPoints[:,0],-1*printPoints[:,1],printPoints[:,2],zdir = 'y')
 
-		ax.set_xlim3d(minP-100,maxP+100)
-		ax.set_ylim3d(minP-100,maxP+100)
-		ax.set_zlim3d(0,maxP+100)
+		# ax.set_xlim3d(minP-100,maxP+100)
+		# ax.set_ylim3d(minP-100,maxP+100)
+		# ax.set_zlim3d(0,maxP+100)
+		ax.set_xlim3d(-100,100)
+		ax.set_ylim3d(0,1000)
+		ax.set_zlim3d(-100,100)
+
 
 		fig.show()
 

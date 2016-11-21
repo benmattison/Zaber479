@@ -28,7 +28,7 @@ def loadCalibration(calPath):
 	with open(calPath, 'r') as f:
 		params = json.load(f)
 
-	print params
+	# print params
 	# Extract calibration information (matrices)
 	# Intrinsic Camera Matrices
 	M1 = np.array(params['M1'])
@@ -41,7 +41,7 @@ def loadCalibration(calPath):
 	T = np.array(params['T']) # Relative translation vector between first and second
 	E = np.array(params['E']) # Essential matrix
 	F = np.array(params['F']) # Fundamental metrix
-	dims = params['dims']
+	dims = tuple(params['dims'])
 
 	paramMtx = [M1, M2, d1, d2, R, T, E, F, dims]
 
