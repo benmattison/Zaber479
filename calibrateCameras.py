@@ -4,8 +4,25 @@ import glob
 import json
 import os
 import save_pics as sp
+import usefulFunctions as us
+import fnmatch
 
 winSize = (11,11)
+
+def find_calibration():
+	directory = 'CalibrationPhotos'
+	if not os.path.exists(directory):
+		makeFolder = get_bool("Cannot find the calibration folder, do you want to create one?")
+		if makeFolder:
+			os.makedirs(directory)
+			return None
+	else:
+		for file in os.listdir(directory):
+			if fnmatch.fnmatch(file, 'calibration*.json'):
+				useJson = us.get_bool("Found calibration file "+file+"\nDo you want to use this?")
+				if useJson:
+					return file
+	return None
 
 def rescale(image, ratio): # Resize an image using linear interpolation
 	if ratio == 1:
@@ -14,9 +31,58 @@ def rescale(image, ratio): # Resize an image using linear interpolation
 	rescaled = cv2.resize(image, dim, interpolation = cv2.INTER_LINEAR)
 	return rescaled
 
+def select_cameras(camList):
+	Lcam = -1
+	Rcam = -1
+	for cam_int in camList:
+		cam = cv2.VideoCapture(cam_int)
+		exposure = -11
+		fps = 5
+		cam.set(cv2.CAP_PROP_EXPOSURE, exposure)
+		cam.set(cv2.CAP_PROP_FPS, fps)
+
+		stereoCam = False
+		selected = False
+		if len(camList) > 2:
+			print("Is this a stereo camera? [y, n]")
+			while selected == False:
+				ret,cap = cam.read()
+				cv2.imshow("Camera "+str(cam_int), cap)
+				key = cv2.waitKey(2)
+				if key == ord("y"):
+					stereoCam = True
+					selected = True
+				elif key == ord("n"):
+					stereoCam = False
+					selected = True
+		else:
+			stereoCam = True
+
+		if not stereoCam:
+			cam.release()
+			cv2.destroyAllWindows()
+			continue
+
+		selected = False
+		print("Is this the left camera? [y, n]")
+		while selected == False:
+			ret,cap = cam.read()
+			cv2.imshow("Camera "+str(cam_int), cap)
+			key = cv2.waitKey(2)
+			if key == ord("y"):
+				Lcam_int = cam_int
+				selected = True
+			elif key == ord("n"):
+				Rcam_int = cam_int
+				selected = True
+		cam.release()
+		cv2.destroyAllWindows()
+	return Lcam_int, Rcam_int
+
+
 def saveCaliPhotos(Lcam_ind, Rcam_ind, saveFolderName):
 	saveLocation = 'CalibrationPhotos/'+saveFolderName+'/'
-	s2p = sp.Save2Pic(saveLocation,15,Lcam_ind, Rcam_ind, 1, True)
+	s2p = sp.Save2Pic(saveLocation,5,Lcam_ind, Rcam_ind, 1, True)
 	return saveLocation
 
 # returns a matrix of the calibration parameters from a file.
@@ -63,11 +129,11 @@ def calibrateFromPics(patternSize, picsPath, calibrationName):
 
 	# TODO ensure that the directory exists before trying to write there, check for overwrite permission.
 	fpath = 'CalibrationPhotos/calibration_' + calibrationName + '.json'
-	with open(fpath, 'w') as f:
-	    json.dump(params, f)
-	    f.close()
-
-	return fpath
+	saved = us.saveToJson(fpath,params)
+	if saved:
+		return fpath
+	else:
+		return None
 
 
 class StereoCalibration(object):

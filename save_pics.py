@@ -2,6 +2,13 @@ import cv2
 import glob
 import argparse
 import numpy as np
+import os
+
+def createFolder(location):
+	if not (location.endswith('/') or location.endswith('\\')):
+		location = location + '/'
+	if not os.path.exists(location):
+		os.makedirs(location)
 
 def setParams(camera):
 	EXPOSURE_PARAM = 15
@@ -23,6 +30,7 @@ def rescale(image, ratio):  # Resize an image using linear interpolation
 class Save1Pic(object):
 	def __init__(self,savePath,numPics,camIndex,rescaleSize):
 		self.saveLocation = savePath
+		createFolder(self.saveLocation)
 		self.maxPic = numPics
 		self.rescaleSize = rescaleSize
 
@@ -60,6 +68,7 @@ class Save1Pic(object):
 class Save2Pic(object):
 	def __init__(self,savePath,numPics,leftCamIndex,rightCamIndex,rescaleSize, displayPattern = False, chessBoardSize = [9,6]):
 		self.saveLocation = savePath
+		createFolder(self.saveLocation)
 		self.maxPic =  numPics
 		self.rescaleSize = rescaleSize
 
@@ -79,8 +88,8 @@ class Save2Pic(object):
 			retL, capL = self.Lcam.read()
 			retR, capR = self.Rcam.read()
 
-			capLorig = capL
-			capRorig = capR
+			capLorig = capL.copy()
+			capRorig = capR.copy()
 
 			# Useful to display the chessboard pattern
 			if displayPattern:
@@ -121,6 +130,9 @@ class Save2Pic(object):
 				cv2.imshow('imgR', capR)
 
 			key = cv2.waitKey(20)
+			if key == ord('w'):
+				cv2.imshow('origL', capLorig)
+				cv2.waitKey(0)
 			if key == ord('p'):
 				if not (hasCorners_R and hasCorners_L):
 					print('Chessboard pattern not found in both images. No picture saved.')
