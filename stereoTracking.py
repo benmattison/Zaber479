@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 import pickle
 # Import some open source code
-from camera_calibrate import StereoCalibration
+import calibrateCameras as cb
 # Import our own code
 import evaluatePoints
 
@@ -176,10 +176,14 @@ if __name__ == '__main__':
 	sqr_size = 37.67  # 14.25mm, 19.25mm, 23.65mm, 37.67mm length of the printed calibration squares
 	# T_real = T*sqr_size
 
-	mypath = "CalibrationPhotos/"
-	infile = open(mypath + 'arbitrary_stereo_calibration_MinoruXL.pickle', 'rb')
-	datathings = pickle.load(infile)
+	# mypath = "CalibrationPhotos/"
+	# infile = open(mypath + 'arbitrary_stereo_calibration_MinoruXL.pickle', 'rb')
+	# datathings = pickle.load(infile)
+
+	calPath = "CalibrationPhotos/calibration_gusTest.json"
+	datathings = cb.loadCalibration(calPath)
 	M1, M2, d1, d2, R, T, E, F, dims = datathings
+	print datathings
 
 	print('T', T)
 	print('T*sqr', T*sqr_size)
@@ -198,15 +202,15 @@ if __name__ == '__main__':
 
 	# an assortment of upper and lower bounds for the different colors we use in HSV.
 	greenLower = (45, 86, 30)
-	greenUpper = (80, 255, 255)
+	greenUpper = (100, 255, 255)
 	pinkLower = (145, 0, 180)
 	pinkUpper = (160, 255, 255)
 	blueLower = (115,100,70)
 	blueUpper = (125,255,255)
 
 	# Choose the ones you want to use.
-	lower = pinkLower
-	upper = pinkUpper
+	lower = greenLower
+	upper = greenUpper
 
 	# the minimum radius of a blob to detect it.
 	minRad = 5
@@ -218,7 +222,7 @@ if __name__ == '__main__':
 
 	Lcam = cv2.VideoCapture(1)
 	Rcam = cv2.VideoCapture(2)
-	minoruExposure = -11
+	minoruExposure = -4
 	Logi2exposure = -6
 	Logi1exposure = 0
 	fps = 5

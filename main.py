@@ -4,6 +4,7 @@ import evaluatePoints as ev
 import stereoTracking as st
 import robotFunctions as rb
 import calibrateCameras as cb
+import zaberCommands as zc
 
 # The main function called for our software. There should not be a lot of code in here, most stuff should be done in other code.
 
@@ -74,8 +75,6 @@ while not EXIT_FLAG:
 		ser,port = zc.check_serial_ports()
 		devices,numDevices = zc.initialize_zaber_serial(port,maxDevices=10)
 
-		# For calibration, have markers on the screen that identify where the pattern should go. Automatically take pictures when it is there.
-		# Save the calibration data to a readable file.
 
 		# Begin tracking end effector. At this point, all stages should be at 'home' position
 		sqSize = 37.67
