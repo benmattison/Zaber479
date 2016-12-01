@@ -343,7 +343,7 @@ if __name__ == '__main__':
 				pickle.dump(pathPoints, outfile)
 
 				Ev = evaluatePoints.evalPoints(pathPoints)
-				print Ev.evaluateArbitrary()
+				print Ev.evaluate()
 				Ev.plotPoints()
 
 		capL = rescale(capL, 1.0 / scaleR)

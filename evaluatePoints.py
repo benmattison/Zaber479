@@ -54,7 +54,7 @@ class evalPoints(object):
 
 		return r, cc, normalVector, theta
 
-	def evaluateArbitrary(self):
+	def evaluate(self):
 		circ_r, circ_cent, circ_axis, theta = self.circleAnalysis()
 		line_vect, line_cent, line_Rs = self.lineAnalysis()
 
