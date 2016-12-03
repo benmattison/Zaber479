@@ -66,14 +66,21 @@ while not EXIT_FLAG:
 		startState = "main"
 
 	if startState == states["main"]:
+		if not os.path.isfile(settingPath):
+			print "Settings.json could not be located"
+			continue
+
 		userSettings = us.readJson(settingsPath)
 		Lcam_int = userSettings["Lcam"]
 		Rcam_int = userSettings["Rcam"]
 		calConstants = cb.loadCalibration(userSettings["calPath"])
+		if calConstants is None:
+			print "Calibration settings at "+userSettings["calPath"]+" could not be found."
+			continue
 
 		# Identify COM ports, find the stages.
 		ser,port = zc.check_serial_ports()
-		devices,numDevices = zc.initialize_zaber_serial(port,maxDevices=10)
+		devices, numDevices = zc.initialize_zaber_serial(port,maxDevices=10)
 
 
 		# Begin tracking end effector. At this point, all stages should be at 'home' position

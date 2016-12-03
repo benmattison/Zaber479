@@ -48,7 +48,6 @@ def check_serial_ports():
 	:return ser: Serial reference to correct COM port
 	:return port: Zaber AsciiSerial reference to correct COM port
 	"""
-
 	# Find serial ports on the system
 	COMports = serial_ports()
 	print(len(COMports))
@@ -97,6 +96,10 @@ def initialize_zaber_serial(port, **kwargs):
 	print('Number of initialized devices is: ' + str(numDevices))
 
 	return devices, numDevices
+
+def home(devices):
+	for device in devices:
+		device.home()
 
 
 def check_command_succeeded(reply):
