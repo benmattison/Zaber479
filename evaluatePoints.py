@@ -58,7 +58,7 @@ class evalPoints(object):
 		circ_r, circ_cent, circ_axis, theta = self.circleAnalysis()
 		line_vect, line_cent, line_Rs = self.lineAnalysis()
 
-		if line_Rs > 0.95:
+		if line_Rs > 0.99:
 			isRotary = 0
 			centerPoint = line_cent
 			axisVect = line_vect
@@ -87,4 +87,3 @@ class evalPoints(object):
 
 
 		fig.show()
-

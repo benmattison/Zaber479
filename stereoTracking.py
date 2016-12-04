@@ -94,12 +94,12 @@ def getHSVBounds(**kwargs):
 
 
 class StereoTracker(object):
-	def __init__(self,calFile,sqSize):
-		# calConstants = pickle.load(calFile)
-		# self.M1, self.M2, self.d1, self.d2, self.R, self.T, self.E, self.F, self.dims = calConstants
-		# flags = 0
-		# flags |= cv2.CALIB_ZERO_DISPARITY
-		# self.R1, self.R2, self.P1, self.P2, self.Q, self.roi1, self.roi2 = cv2.stereoRectify(self.M1, self.d1, self.M2, self.d2, self.dims, self.R, self.T, alpha=-1, flags=flags)
+	def __init__(self,calConstants,sqSize):
+		print len(calConstants)
+		[self.M1, self.M2, self.d1, self.d2, self.R, self.T, self.E, self.F, self.dims] = calConstants
+		flags = 0
+		flags |= cv2.CALIB_ZERO_DISPARITY
+		self.R1, self.R2, self.P1, self.P2, self.Q, self.roi1, self.roi2 = cv2.stereoRectify(self.M1, self.d1, self.M2, self.d2, self.dims, self.R, self.T, alpha=-1, flags=flags)
 		self.sqSize = sqSize
 
 	def initializeCameras(self,Lcam_index,Rcam_index,**kwargs):
@@ -137,8 +137,8 @@ class StereoTracker(object):
 			retR, capR = self.Rcam.retrieve()
 			retL, capL = self.Lcam.retrieve()
 
-		cv2.imshow('Rcam',capR)
-		cv2.imshow('Lcam',capL)
+			cv2.imshow('Rcam',capR)
+			cv2.imshow('Lcam',capL)
 
 	def trackBall(self,colour): # Returns the world coordinates [x, y, z] of the tracking ball
 		lower, upper = getHSVBounds(hsv=colour)
@@ -152,6 +152,9 @@ class StereoTracker(object):
 		cntsL = cv2.findContours(maskL.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
 		cntsR = cv2.findContours(maskR.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
 
+		if len(cntsL) < 1 or len(cntsR) < 1: # No contours found
+			return None
+
 		cL = max(cntsL, key=cv2.contourArea)
 		cR = max(cntsR, key=cv2.contourArea)
 
@@ -159,7 +162,7 @@ class StereoTracker(object):
 
 		((xR, yR), (d1, d2), angle) = cv2.fitEllipse(cR)
 
-		worldPoints = iterTriangulate(P1, P2, (xL, yL), (xR, yR))
+		worldPoints = iterTriangulate(self.P1, self.P2, (xL, yL), (xR, yR))
 		worldPoints /= worldPoints[3]
 
 		worldPoints = worldPoints[:3]

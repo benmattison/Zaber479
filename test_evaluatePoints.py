@@ -1,4 +1,4 @@
-import evaluatePoints as eval
+import evaluatePoints as ev
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -26,7 +26,7 @@ fig.show()
 
 x = raw_input('press enter:\n')
 
-ev = eval.evalPoints(vectors)
+ev = ev.evalPoints(vectors)
 
 # print ev.lineAnalysis()
 # print ev.circleAnalysis()
