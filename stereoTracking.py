@@ -140,7 +140,7 @@ class StereoTracker(object):
 		cv2.imshow('Rcam',capR)
 		cv2.imshow('Lcam',capL)
 
-	def trackBall(self,colour):
+	def trackBall(self,colour): # Returns the world coordinates [x, y, z] of the tracking ball
 		lower, upper = getHSVBounds(hsv=colour)
 
 		retL, capL = self.Lcam.read()
@@ -169,7 +169,7 @@ class StereoTracker(object):
 		yReal = worldPoints[1]
 		zReal = worldPoints[2]
 
-		return xReal, yReal, zReal
+		return [xReal, yReal, zReal]
 
 if __name__ == '__main__':
 
