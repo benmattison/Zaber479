@@ -8,7 +8,7 @@ import glob
 from zaber.serial import AsciiSerial, AsciiDevice, AsciiCommand, AsciiReply, AsciiAxis
 
 
-def send_rec(msg):
+def send_rec(msg,ser):
 	ser.write(msg)
 	line = ser.readline()
 	print(line)
@@ -43,10 +43,9 @@ def serial_ports():
 	return result
 
 
-def check_serial_ports():
+def check_serial_ports(portType='AsciiSerial'):
 	"""
-	:return ser: Serial reference to correct COM port
-	:return port: Zaber AsciiSerial reference to correct COM port
+	:return port: Either Zaber AsciiSerial reference or Serial reference to correct COM port
 	"""
 	# Find serial ports on the system
 	COMports = serial_ports()
@@ -57,16 +56,20 @@ def check_serial_ports():
 	if len(COMports) == 0:
 		print("There are no stages detected on the system")
 	elif len(COMports) == 1:
-		# TODO: This doesn't work because the first one connects and is exclusive so the second thing has access denied.
-		port = AsciiSerial(COMports[0])
-		ser = serial.Serial(COMports[0],115200,timeout=1)
+		if portType == 'AsciiSerial':
+			port = AsciiSerial(COMports[0])
+		elif portType == 'Serial':
+			port = serial.Serial(COMports[0],115200,timeout=1)
 	else:
 		print('Multiple COM ports found, please identify which is connected to Zaber stage')
 		c = raw_input('Enter COM port number followed by ENTER: ')
-		ser = serial.Serial('COM%d'%c,115200,timeout=1)
-		port = AsciiSerial('COM%d'%c)
+		if portType == 'AsciiSerial':
+			port = AsciiSerial('COM%d' % c)
+		elif portType == 'Serial':
+			port = serial.Serial('COM%d'%c,115200,timeout=1)
 
-	return ser, port
+
+	return port
 
 
 def initialize_zaber_serial(port, **kwargs):
@@ -85,9 +88,9 @@ def initialize_zaber_serial(port, **kwargs):
 
 	devices = {}
 	numDevices = maxDevices
-	for i in range (0,maxDevices):
+	for i in range(0, maxDevices):
 		try:
-			devices[i] = AsciiDevice(port, i)# Device number i
+			devices[i] = AsciiDevice(port, i+1)# Device number i
 			devices[i].home()
 		except:
 			numDevices = i
@@ -96,6 +99,7 @@ def initialize_zaber_serial(port, **kwargs):
 	print('Number of initialized devices is: ' + str(numDevices))
 
 	return devices, numDevices
+
 
 def home(devices):
 	for device in devices:
@@ -120,15 +124,14 @@ def check_command_succeeded(reply):
 
 if __name__ == '__main__':
 
-	ser,port = check_serial_ports()
+	port = check_serial_ports(portType='Serial')
 
 	# 1) USE SERIAL TO TALK TO STAGES DIRECTLY
 
 	# Example set of commands to follow.
 	msgs = ['/1 move abs 30000\n','/1 move rel -20000\n','/1 home\n']
 
-	line = send_rec('/2 \n')
-	print(line)
+	line = send_rec('/2 \n',port)
 	if line == '':
 		print('no stage at address 2')
 	#line = send_rec('/1 \n')
@@ -136,12 +139,12 @@ if __name__ == '__main__':
 
 	# Send them all and see if they are ready.
 	for msg in msgs:
-		line = send_rec(msg)
+		line = send_rec(msg,port)
 		# Assume that the stage is doing something.
 		busy = 1
 		while busy:
 			# Send a command that just asks for the status of device 1.
-			line = send_rec('/1 \n')
+			line = send_rec('/1 \n',port)
 			# If it is not doing anything, we can send a new command.
 			if 'IDLE' in line:
 				# busy = 0
@@ -149,13 +152,14 @@ if __name__ == '__main__':
 			time.sleep(0.5)
 
 	# Check if there are any unread lines
-	line = ser.readlines()
+	line = port.readlines()
 	print(line)
 
 	# Close the connection.
-	ser.close()
+	port.close()
 
 	# 2) USE ZABERSERIAL TO TALK TO STAGES
+	port = check_serial_ports(portType='AsciiSerial')
 
 	devices,numDevices = initialize_zaber_serial(port,numDevices=10)
 
