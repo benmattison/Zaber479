@@ -102,30 +102,26 @@ class StereoTracker(object):
 		self.R1, self.R2, self.P1, self.P2, self.Q, self.roi1, self.roi2 = cv2.stereoRectify(self.M1, self.d1, self.M2, self.d2, self.dims, self.R, self.T, alpha=-1, flags=flags)
 		self.sqSize = sqSize
 
-	def initializeCameras(self,Lcam_index,Rcam_index,**kwargs):
+	def initializeCameras(self,Lcam_index,Rcam_index,exposure=-11,fps=5):
 		self.Lcam = cv2.VideoCapture(Lcam_index)
 		self.Rcam = cv2.VideoCapture(Rcam_index)
 
-		# Defaults for Minoru
-		exposure = -11
-		fps = 5
-		# Adjust if needed
-		for key in kwargs:
-			if key == 'exposure':
-				exposure = kwargs[key]
-			elif key == 'fps':
-				fps = kwargs[key]
+		# # Defaults for Minoru
+		# exposure = -11
+		# fps = 5
+		# # Adjust if needed
+		# for key in kwargs:
+		# 	if key == 'exposure':
+		# 		exposure = kwargs[key]
+		# 	elif key == 'fps':
+		# 		fps = kwargs[key]
 
 		for camera in [self.Lcam, self.Rcam]:
 			camera.set(cv2.CAP_PROP_EXPOSURE, exposure)
 			camera.set(cv2.CAP_PROP_FPS, fps)
-			camera.set(cv2.CAP_PROP_FORMAT,cv2.CV_8UC3)
-			camera.set(cv2.CAP_PROP_FRAME_WIDTH,320*2)
-			camera.set(cv2.CAP_PROP_FRAME_HEIGHT,240*2)
-			print(camera.get(cv2.CAP_PROP_FORMAT))
-			print(camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
-			print(camera.get(cv2.CAP_PROP_FPS))
-
+			#camera.set(cv2.CAP_PROP_FORMAT,cv2.CV_8UC3)
+			camera.set(cv2.CAP_PROP_FRAME_WIDTH,self.dims[0])
+			camera.set(cv2.CAP_PROP_FRAME_HEIGHT,self.dims[1])
 
 	def showVideo(self):
 		# retR, capR = self.Rcam.read()
@@ -173,6 +169,11 @@ class StereoTracker(object):
 		zReal = worldPoints[2]
 
 		return [xReal, yReal, zReal]
+
+	def close(self):
+		self.Lcam.release()
+		self.Rcam.release()
+		cv2.destroyAllWindows()
 
 if __name__ == '__main__':
 

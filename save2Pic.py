@@ -11,12 +11,17 @@ def rescale(image, ratio): # Resize an image using linear interpolation
 	return rescaled
 
 exposure = -5
-fps = 5
+fps = 15
 Lcam = cv2.VideoCapture(1)
 Rcam = cv2.VideoCapture(2)
 for camera in [Lcam, Rcam]:
 	camera.set(15,exposure)
-	camera.set(5,fps)
+	camera.set(cv2.CAP_PROP_FPS,fps)
+	camera.set(cv2.CAP_PROP_FRAME_HEIGHT,2*240)
+	camera.set(cv2.CAP_PROP_FRAME_WIDTH,2*320)
+	print(camera.get(cv2.CAP_PROP_FRAME_WIDTH))
+	print(camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
+	print(camera.get(cv2.CAP_PROP_FPS))
 
 
 # Logi1exposure = 0

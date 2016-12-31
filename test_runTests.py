@@ -7,28 +7,8 @@ import zaberCommands as zc
 import os
 import time
 import numpy as np
+import cv2
 
-settingsPath = "settings.json"
-
-if not os.path.isfile(settingsPath):
-	print "Settings.json could not be located"
-
-userSettings = us.readJson(settingsPath)
-Lcam_int = userSettings["Lcam"]
-Rcam_int = userSettings["Rcam"]
-calConstants = cb.loadCalibration(userSettings["calPath"])
-if calConstants is None:
-	print "Calibration settings at "+userSettings["calPath"]+" could not be found."
-
-# Identify COM ports, find the stages.
-port = zc.check_serial_ports()
-devices, numDevices = zc.initialize_zaber_serial(port,maxDevices=10)
-
-# Begin tracking end effector. At this point, all stages should be at 'home' position
-sqSize = 37.67
-track = st.StereoTracker(calConstants,sqSize)  # initialize stereo tracker
-track.initializeCameras(Lcam_int, Rcam_int)
-track.showVideo()
 
 def move_track_home(track, devices, device_int, num_moves = 3, num_steps = 300000):
 	points = []
@@ -42,24 +22,56 @@ def move_track_home(track, devices, device_int, num_moves = 3, num_steps = 30000
 	devices[device_int].home()
 	return np.array(points)
 
-device_points = []
-for i in range(numDevices):
-	print i
-	device_points.append(move_track_home(track, devices, i))
+if __name__ == '__main__':
 
-print device_points
+    settingsPath = "settingsLogi.json"
 
-for points in device_points:
-	evaluation = ev.evalPoints(points)
+    if not os.path.isfile(settingsPath):
+        print "Settings.json could not be located"
 
-	print evaluation.lineAnalysis()
-	print evaluation.circleAnalysis()
-	isRotary, center, axis = evaluation.evaluate()
-	print("Rotary?", isRotary)
-	print("Center Point", center)
-	print("Axis", axis)
+    userSettings = us.readJson(settingsPath)
+    Lcam_int = userSettings["Lcam"]
+    Rcam_int = userSettings["Rcam"]
+    calConstants = cb.loadCalibration(userSettings["calPath"])
+    if calConstants is None:
+        print "Calibration settings at "+userSettings["calPath"]+" could not be found."
 
-	evaluation.plotPoints()
+    # Identify COM ports, find the stages.
+    port = zc.check_serial_ports()
+    devices, numDevices = zc.initialize_zaber_serial(port,maxDevices=10)
+
+    # Begin tracking end effector. At this point, all stages should be at 'home' position
+    sqSize = 37.67
+    track = st.StereoTracker(calConstants,sqSize)  # initialize stereo tracker
+    track.initializeCameras(Lcam_int, Rcam_int,exposure=-4,fps=30)
+    print "Align cameras so full robotic range of motion is in both views"
+    while True:
+        track.showVideo()
+
+        key = cv2.waitKey(1)
+        if key == ord('q'):
+            break
 
 
 
+    device_points = []
+    for i in range(numDevices):
+        print i
+        device_points.append(move_track_home(track, devices, i))
+
+    print device_points
+
+    for points in device_points:
+        evaluation = ev.evalPoints(points)
+
+        print evaluation.lineAnalysis()
+        print evaluation.circleAnalysis()
+        isRotary, center, axis = evaluation.evaluate()
+        print("Rotary?", isRotary)
+        print("Center Point", center)
+        print("Axis", axis)
+
+        evaluation.plotPoints()
+        us.print_wait("Continue...")
+
+    track.close()

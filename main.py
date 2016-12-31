@@ -5,6 +5,7 @@ import stereoTracking as st
 import robotFunctions as rb
 import calibrateCameras as cb
 import zaberCommands as zc
+import os
 
 # The main function called for our software. There should not be a lot of code in here, most stuff should be done in other code.
 
@@ -18,7 +19,7 @@ EXIT_FLAG = False
 states = {"init" : 1, "main" : 2, "quit" : 3}
 prompt = "What would you like to do? [1: Initialize, 2: Skip Initialization, 3: Quit]"
 
-settingsPath = "settings.json"
+settingsPath = "settingsLogi.json"
 
 while not EXIT_FLAG:
 	startState = int(us.get_answer(prompt, [str(val) for val in states.values()]))
@@ -66,7 +67,7 @@ while not EXIT_FLAG:
 		startState = "main"
 
 	if startState == states["main"]:
-		if not os.path.isfile(settingPath):
+		if not os.path.isfile(settingsPath):
 			print "Settings.json could not be located"
 			continue
 

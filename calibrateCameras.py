@@ -12,7 +12,7 @@ winSize = (11,11)
 def find_calibration():
 	directory = 'CalibrationPhotos'
 	if not os.path.exists(directory):
-		makeFolder = get_bool("Cannot find the calibration folder, do you want to create one?")
+		makeFolder = us.get_bool("Cannot find the calibration folder, do you want to create one?")
 		if makeFolder:
 			os.makedirs(directory)
 			return None
