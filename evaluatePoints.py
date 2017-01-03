@@ -19,7 +19,7 @@ class evalPoints(object):
 			SSres = SSres+point2line*point2line
 			SStot = SStot+np.linalg.norm(v-dataMean)*np.linalg.norm(v-dataMean)
 		Rsquare = 1-SSres/SStot
-		return vv[0], dataMean, Rsquare
+		return lineVect, dataMean, Rsquare
 
 	def circleAnalysis(self):
 		# Determine the radius and center of a circle

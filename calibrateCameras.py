@@ -9,6 +9,7 @@ import fnmatch
 
 winSize = (11,11)
 
+
 def find_calibration():
 	directory = 'CalibrationPhotos'
 	if not os.path.exists(directory):
@@ -23,6 +24,7 @@ def find_calibration():
 				if useJson:
 					return file
 	return None
+
 
 def rescale(image, ratio): # Resize an image using linear interpolation
 	if ratio == 1:
@@ -82,7 +84,9 @@ def select_cameras(camList):
 
 def saveCaliPhotos(Lcam_ind, Rcam_ind, saveFolderName):
 	saveLocation = 'CalibrationPhotos/'+saveFolderName+'/'
-	s2p = sp.Save2Pic(saveLocation,5,Lcam_ind, Rcam_ind, 1, True)
+	numPics = 10
+	rescaleSize = 1
+	s2p = sp.Save2Pic(saveLocation,numPics,Lcam_ind, Rcam_ind, rescaleSize, True)
 	return saveLocation
 
 # returns a matrix of the calibration parameters from a file.

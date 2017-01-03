@@ -6,6 +6,7 @@ import robotFunctions as rb
 import calibrateCameras as cb
 import zaberCommands as zc
 import os
+import test_runTests as rt
 
 # The main function called for our software. There should not be a lot of code in here, most stuff should be done in other code.
 
@@ -58,9 +59,14 @@ while not EXIT_FLAG:
 			photoPath = cb.saveCaliPhotos(Lcam_int, Rcam_int, saveFolder)
 			# Might as well give the calibration the same name as the folder of photos it comes from.
 			calName = saveFolder
-			calPath = cb.calibrateFromPics([9,6],photoPath,calName)
+
+			chessboardSize = [9,6]
+			sqSize = 37.67 # in mm
+
+			calPath = cb.calibrateFromPics(chessboardSize,photoPath,calName)
 			calConstants = cb.loadCalibration(calPath)
 		userSettings["calPath"] = calPath
+		userSettings["chessboardSquareSize"] = sqSize
 
 		us.saveToJson(settingsPath, userSettings)
 
@@ -85,30 +91,37 @@ while not EXIT_FLAG:
 
 
 		# Begin tracking end effector. At this point, all stages should be at 'home' position
-		sqSize = 37.67
-		track = st.StereoTracker(calFile,sqSize)  # initialize stereo tracker
-		track.initializeCameras(Lcam_int, Rcam_int)
+		sqSize = userSettings["chessboardSquareSize"]
+		track = st.StereoTracker(calConstants,sqSize)  # initialize stereo tracker
+		track.initializeCameras(Lcam_int, Rcam_int,exposure=-4,fps=30)
 
-		# Move stage 1 twice and save motion points.
-		microSteps=200000
-		x = [0,0,0]
-		y = [0,0,0]
-		z = [0,0,0]
-		points = {}
-		for i in range(0,numDevices-1):
-			devices[i].move_rel(microSteps)
-			x[0],y[0],z[0] = track.trackBall('pink')
-			devices[i].move_rel(microSteps)
-			x[1],y[1],z[1] = track.trackBall('pink')
-			devices[i].move_rel(microSteps)
-			x[2],y[2],z[2] = track.trackBall('pink')
-			points[i] = (x,y,z)
+		# Have user align cameras
+		print "Align cameras so full robotic range of motion is in both views"
+		track.showVideo()
 
+		# Move stages and save motion points.
+		device_points = []
+		for i in range(numDevices):
+			print i
+			device_points.append(rt.move_track_home(track, devices, i))
+
+		print device_points
 
 		# Evaluate the motion from those points.
+		for points in device_points:
+			evaluation = ev.evalPoints(points)
 
+			print evaluation.lineAnalysis()
+			print evaluation.circleAnalysis()
+			isRotary, center, axis = evaluation.evaluate()
+			print("Rotary?", isRotary)
+			print("Center Point", center)
+			print("Axis", axis)
 
-		# ...
+			evaluation.plotPoints()
+			us.print_wait("Continue...")
+
+		track.close()
 
 		# Determine the hierarchy of rotary stages
 
