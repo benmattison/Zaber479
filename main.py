@@ -49,6 +49,8 @@ while not EXIT_FLAG:
 
 		# Have the user select if they want to do a camera calibration or not. If not, load a default calibration.
 		calPath = cb.find_calibration()
+		sqSize = 37.67
+		chessboardSize = [9,6]
 
 		if not calPath:
 			us.print_wait("No calibration file selected. You will need to take pictures.")
@@ -59,9 +61,6 @@ while not EXIT_FLAG:
 			photoPath = cb.saveCaliPhotos(Lcam_int, Rcam_int, saveFolder)
 			# Might as well give the calibration the same name as the folder of photos it comes from.
 			calName = saveFolder
-
-			chessboardSize = [9,6]
-			sqSize = 37.67 # in mm
 
 			calPath = cb.calibrateFromPics(chessboardSize,photoPath,calName)
 			calConstants = cb.loadCalibration(calPath)
