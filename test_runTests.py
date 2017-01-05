@@ -9,22 +9,23 @@ import time
 import numpy as np
 
 
-def move_track_home(track, devices, device_int, num_moves = 3, num_steps = 300000):
+def move_track_home(track, devices, device_int, num_moves = 2, num_steps = 300000):
 	points = []
+	points.append(track.trackBall('pink')) # take pic/points at home position
 	for i in range(num_moves):
 		while track.trackBall('pink') is None:
 			print "Ball not located in both cameras... re-align cameras and press Q+ENTER"
 			# This error basically just means the entire tracking is messed up...
 			track.showVideo()
-		points.append(track.trackBall('pink'))
 		devices[device_int].move_rel(num_steps)
+		points.append(track.trackBall('pink'))
 		time.sleep(2)
 	devices[device_int].home()
 	return np.array(points)
 
 if __name__ == '__main__':
 
-	settingsPath = "settingsLogi.json"
+	settingsPath = "settingsLogiBen.json"
 
 	if not os.path.isfile(settingsPath):
 		print settingsPath+" could not be located"
