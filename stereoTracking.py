@@ -140,6 +140,16 @@ class StereoTracker(object):
 			if key == ord('q'):
 				break
 
+	def showFrame(self):
+		retR = self.Rcam.grab()
+		retL = self.Lcam.grab()
+		if retR and retL:
+			retR, capR = self.Rcam.retrieve()
+			retL, capL = self.Lcam.retrieve()
+
+			cv2.imshow('Rcam',capR)
+			cv2.imshow('Lcam',capL)
+
 	def trackBall(self,colour): # Returns the world coordinates [x, y, z] of the tracking ball
 		lower, upper = getHSVBounds(hsv=colour)
 
