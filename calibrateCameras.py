@@ -33,13 +33,12 @@ def rescale(image, ratio): # Resize an image using linear interpolation
 	rescaled = cv2.resize(image, dim, interpolation = cv2.INTER_LINEAR)
 	return rescaled
 
-def select_cameras(camList):
+def select_cameras(camList, exposure = -4, fps = 30):
 	Lcam = -1
 	Rcam = -1
 	for cam_int in camList:
 		cam = cv2.VideoCapture(cam_int)
-		exposure = -7
-		fps = 5
+
 		cam.set(cv2.CAP_PROP_EXPOSURE, exposure)
 		cam.set(cv2.CAP_PROP_FPS, fps)
 

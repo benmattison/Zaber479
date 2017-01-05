@@ -43,7 +43,7 @@ while not EXIT_FLAG:
 		else:
 			us.print_wait("Multiple cameras detected. You will need to select which cameras are which.")
 
-		Lcam_int, Rcam_int = cb.select_cameras(camList)
+		Lcam_int, Rcam_int = cb.select_cameras(camList, exposure = -1, fps = 30)
 		userSettings["Lcam"] = Lcam_int
 		userSettings["Rcam"] = Rcam_int
 
