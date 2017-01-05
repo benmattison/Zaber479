@@ -87,3 +87,16 @@ class evalPoints(object):
 
 
 		fig.show()
+
+def plotAll(evals):
+	fig = plt.figure()
+	ax = fig.add_subplot(111, projection='3d')
+	for evalu in evals:
+		printPoints = np.array(evalu.points)
+		ax.scatter(printPoints[:, 0], -1 * printPoints[:, 1], printPoints[:, 2], zdir='y')
+
+	ax.set_xlim3d(-200, 200)
+	ax.set_ylim3d(500, 2000)
+	ax.set_zlim3d(-200, 200)
+
+	fig.show()

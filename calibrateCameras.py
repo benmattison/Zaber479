@@ -38,7 +38,7 @@ def select_cameras(camList):
 	Rcam = -1
 	for cam_int in camList:
 		cam = cv2.VideoCapture(cam_int)
-		exposure = -11
+		exposure = -7
 		fps = 5
 		cam.set(cv2.CAP_PROP_EXPOSURE, exposure)
 		cam.set(cv2.CAP_PROP_FPS, fps)

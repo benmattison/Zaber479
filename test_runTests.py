@@ -51,14 +51,19 @@ if __name__ == '__main__':
 	for i in range(numDevices):
 		print i
 		device_points.append(move_track_home(track, devices, i))
+		time.sleep(2)
 
 	print device_points
+
+	evals = []
 
 	for points in device_points:
 		evaluation = ev.evalPoints(points)
 
-		print evaluation.lineAnalysis()
-		print evaluation.circleAnalysis()
+		evals.append(evaluation)
+
+		# print evaluation.lineAnalysis()
+		# print evaluation.circleAnalysis()
 		isRotary, center, axis = evaluation.evaluate()
 		print("Rotary?", isRotary)
 		print("Center Point", center)
@@ -67,4 +72,6 @@ if __name__ == '__main__':
 		evaluation.plotPoints()
 		us.print_wait("Continue...")
 
+	ev.plotAll(evals)
+	us.print_wait("Continue...")
 	track.close()
