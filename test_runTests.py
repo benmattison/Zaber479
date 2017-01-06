@@ -9,16 +9,17 @@ import time
 import numpy as np
 
 
-def move_track_home(track, devices, device_int, num_moves = 2, num_steps = 300000):
+def move_track_home(track, devices, device_int, num_moves = 3, num_steps = 300000):
 	points = []
-	points.append(track.trackBall('pink')) # take pic/points at home position
+	#points.append(track.trackBall('pink')) # take pic/points at home position
 	for i in range(num_moves):
 		while track.trackBall('pink') is None:
 			print "Ball not located in both cameras... re-align cameras and press Q+ENTER"
 			# This error basically just means the entire tracking is messed up...
 			track.showVideo()
-		devices[device_int].move_rel(num_steps)
 		points.append(track.trackBall('pink'))
+		if not i == (num_moves-1): # remove unnecessary final movement
+			devices[device_int].move_rel(num_steps)
 		time.sleep(2)
 	devices[device_int].home()
 	return np.array(points)
@@ -44,7 +45,7 @@ if __name__ == '__main__':
 	# Begin tracking end effector. At this point, all stages should be at 'home' position
 	sqSize = userSettings["chessboardSquareSize"]
 	track = st.StereoTracker(calConstants,sqSize)  # initialize stereo tracker
-	track.initializeCameras(Lcam_int, Rcam_int,exposure=-4,fps=30)
+	track.initializeCameras(Lcam_int, Rcam_int,Lcam_exposure=-5,Rcam_exposure=-4,fps=30)
 	print "Align cameras so full robotic range of motion is in both views and press Q+ENTER"
 	track.showVideo()
 

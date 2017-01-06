@@ -102,7 +102,7 @@ class StereoTracker(object):
 		self.R1, self.R2, self.P1, self.P2, self.Q, self.roi1, self.roi2 = cv2.stereoRectify(self.M1, self.d1, self.M2, self.d2, self.dims, self.R, self.T, alpha=-1, flags=flags)
 		self.sqSize = sqSize
 
-	def initializeCameras(self,Lcam_index,Rcam_index,exposure=-11,fps=5):
+	def initializeCameras(self,Lcam_index,Rcam_index,Lcam_exposure=-4,Rcam_exposure=-4,fps=30):
 		self.Lcam = cv2.VideoCapture(Lcam_index)
 		self.Rcam = cv2.VideoCapture(Rcam_index)
 
@@ -116,8 +116,11 @@ class StereoTracker(object):
 		# 	elif key == 'fps':
 		# 		fps = kwargs[key]
 
+		self.Lcam.set(cv2.CAP_PROP_EXPOSURE, Lcam_exposure)
+		self.Rcam.set(cv2.CAP_PROP_EXPOSURE, Rcam_exposure)
+
 		for camera in [self.Lcam, self.Rcam]:
-			camera.set(cv2.CAP_PROP_EXPOSURE, exposure)
+			#camera.set(cv2.CAP_PROP_EXPOSURE, exposure)
 			camera.set(cv2.CAP_PROP_FPS, fps)
 			#camera.set(cv2.CAP_PROP_FORMAT,cv2.CV_8UC3)
 			camera.set(cv2.CAP_PROP_FRAME_WIDTH,self.dims[0])
