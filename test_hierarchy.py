@@ -85,13 +85,15 @@ if __name__ == '__main__':
 				new_points = rt.move_track_home(track,devices,i)
 				new_eval = ev.evalPoints(new_points)
 				_, _, _, new_radius = new_eval.evaluate()
+				devices[j].home()
+				time.sleep(2)
 
 				# Check if radius changed
 				if (abs(new_radius-radii[i]) > tolerance):
 					print("Device " + str(j) + " is below device " + str(i) + " in the hierarchy")
 				else:
 					print("Device " + str(j) + " is above device " + str(i) + " in the hierarchy")
-                #TODO: Implement a stack/list to sort devices
+				#TODO: Implement a stack/list to sort devices
 
 
 	us.print_wait("Continue...")
