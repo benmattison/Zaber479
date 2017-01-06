@@ -7,6 +7,7 @@ import zaberCommands as zc
 import os
 import time
 import numpy as np
+import csv
 
 
 def move_track_home(track, devices, device_int, num_moves = 3, num_steps = 300000):
@@ -56,6 +57,10 @@ if __name__ == '__main__':
 		time.sleep(2)
 
 	print device_points
+
+	myfile = open('device_points_'+time.asctime()+'.csv', 'wb')
+	wr = csv.writer(myfile)
+	wr.writerows(device_points)
 
 	evals = []
 

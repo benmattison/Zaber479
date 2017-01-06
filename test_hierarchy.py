@@ -51,6 +51,7 @@ if __name__ == '__main__':
 	print "Align cameras so full robotic range of motion is in both views and press Q+ENTER"
 	track.showVideo()
 
+	# Get initial data homing after every track
 	device_points = get_device_points(track,devices,numDevices)
 
 	print device_points
@@ -77,8 +78,10 @@ if __name__ == '__main__':
 	tolerance = 10 # in mm
 
 	for i in range(numDevices):
+		# different test for each rotary stage
 		if rotary[i] == 1:
 			for j in range(numDevices):
+				# Don't try moving the test device
 				if j == i:
 					continue
 				devices[j].move_rel(test_steps)

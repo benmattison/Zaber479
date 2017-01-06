@@ -3,9 +3,10 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 class evalPoints(object):
-	def __init__(self, points):
+	def __init__(self, points, num_steps = 300000):
 		# termination criteria
 		self.points = points
+		self.num_steps = num_steps
 
 	def lineAnalysis(self):
 		# Determines the best fit of a set of 3 points, with the center point
@@ -19,7 +20,12 @@ class evalPoints(object):
 			SSres = SSres+point2line*point2line
 			SStot = SStot+np.linalg.norm(v-dataMean)*np.linalg.norm(v-dataMean)
 		Rsquare = 1-SSres/SStot
-		return lineVect, dataMean, Rsquare
+		# Size of a single step in mm
+		stepSize1 = np.linalg.norm(self.points[1]-self.points[0])
+		stepSize2 = np.linalg.norm(self.points[2]-self.points[1])
+		stepSizeAv = 0.5*(stepSize1+stepSize2)
+
+		return lineVect, dataMean, Rsquare, stepSizeAv
 
 	def circleAnalysis(self):
 		# Determine the radius and center of a circle
@@ -46,31 +52,38 @@ class evalPoints(object):
 
 		#Getting normal vector for circle
 		normalVector = np.cross(A-C, B-C)
-		normalVector /= np.linalg.norm(normalVector)
+		normalVector = normalVector*(1.0/np.linalg.norm(normalVector))
 
 		#calculating the angle of the plane to the x, y plane
 		normalXY = [0, 0, 1] #normal vecor to x,y plane
 		theta = np.arccos(np.dot(normalVector, normalXY))
 
-		return r, cc, normalVector, theta
+		radUnitVects = [(A-cc)/np.linalg.norm(A-cc), (B-cc)/np.linalg.norm(B-cc), (C-cc)/np.linalg.norm(C-cc)]
+		stepSize1 = np.arccos(np.dot(radUnitVects[0],radUnitVects[1]))
+		stepSize2 = np.arccos(np.dot(radUnitVects[1],radUnitVects[2]))
+		stepSizeAv = np.rad2deg(0.5*(stepSize1+stepSize2))
+
+		return r, cc, normalVector, theta, stepSizeAv
 
 	def evaluate(self):
-		circ_r, circ_cent, circ_axis, theta = self.circleAnalysis()
-		line_vect, line_cent, line_Rs = self.lineAnalysis()
+		circ_r, circ_cent, circ_axis, theta, stepSizeDeg = self.circleAnalysis()
+		line_vect, line_cent, line_Rs, stepSizeMM = self.lineAnalysis()
 
 		if line_Rs > 0.99:
 			isRotary = 0
 			centerPoint = line_cent
 			axisVect = line_vect
 			radius = None
+			step1k = 1000.0*stepSizeMM/self.num_steps
 
 		else:
 			isRotary = 1
 			centerPoint = circ_cent
 			axisVect = circ_axis
 			radius = circ_r
+			step1k = 1000.0*stepSizeDeg/self.num_steps
 
-		return isRotary, centerPoint, axisVect, radius
+		return isRotary, centerPoint, axisVect, radius, step1k
 
 	def plotPoints(self):
 		fig = plt.figure()
