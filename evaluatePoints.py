@@ -62,13 +62,15 @@ class evalPoints(object):
 			isRotary = 0
 			centerPoint = line_cent
 			axisVect = line_vect
+			radius = None
 
 		else:
 			isRotary = 1
 			centerPoint = circ_cent
 			axisVect = circ_axis
+			radius = circ_r
 
-		return isRotary, centerPoint, axisVect
+		return isRotary, centerPoint, axisVect, radius
 
 	def plotPoints(self):
 		fig = plt.figure()
