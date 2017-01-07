@@ -49,8 +49,8 @@ while not EXIT_FLAG:
 
 		# Have the user select if they want to do a camera calibration or not. If not, load a default calibration.
 		calPath = cb.find_calibration()
-		sqSize = 37.67
-		chessBoardSize = [9,6]
+		sqSize = 19.30
+		chessBoardSize = [12,10]
 		img_height = 720
 		img_width = 1280
 		numPics = 20
