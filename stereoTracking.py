@@ -175,7 +175,8 @@ class StereoTracker(object):
 
 		((xR, yR), (d1, d2), angle) = cv2.fitEllipse(cR)
 
-		worldPoints = iterTriangulate(self.P1, self.P2, (xL, yL), (xR, yR))
+		# worldPoints = iterTriangulate(self.P1, self.P2, (xL, yL), (xR, yR))
+		worldPoints = cv2.triangulatePoints(self.P1, self.P2, [xL, yL], [xR, yR])
 		worldPoints /= worldPoints[3]
 
 		worldPoints = worldPoints[:3]
