@@ -23,7 +23,8 @@ def move_track_home(track, devices, device_int, num_moves = 3, num_steps = 30000
 			devices[device_int].move_rel(num_steps)
 		time.sleep(2)
 	devices[device_int].home()
-	return np.array(points)
+	x = np.array(points)
+	return np.squeeze(x)
 
 if __name__ == '__main__':
 
