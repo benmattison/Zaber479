@@ -28,7 +28,7 @@ def init_devices_track_from_settings(settingsPath):
 	# Begin tracking end effector. At this point, all stages should be at 'home' position
 	sqSize = userSettings["chessboardSquareSize"]
 	track = st.StereoTracker(calConstants, sqSize)  # initialize stereo tracker
-	track.initializeCameras(Lcam_int, Rcam_int, Lcam_exposure=-5, Rcam_exposure=-4, fps=30)
+	track.initializeCameras(Lcam_int, Rcam_int, Lcam_exposure=-4, Rcam_exposure=-4, fps=30)
 
 	return devices, numDevices, track
 
@@ -44,7 +44,7 @@ def get_device_points(track,devices,numDevices):
 
 if __name__ == '__main__':
 
-	settingsPath = "settingsLogiBen.json"
+	settingsPath = "settingsLogi.json"
 
 	devices, numDevices, track = init_devices_track_from_settings(settingsPath)
 
@@ -65,13 +65,14 @@ if __name__ == '__main__':
 
 		evals.append(evaluation)
 
-		isRotary, center, axis, radius = evaluation.evaluate()
+		isRotary, center, axis, radius, stepSize1k = evaluation.evaluate()
 		rotary.append(isRotary)
 		radii.append(radius)
 		print("Rotary?", isRotary)
 		print("Center Point", center)
 		print("Axis", axis)
 		print("Radius",radius)
+		print("mm per 1000 steps", stepSize1k)
 
 	# Basic hierarchy algorithm starts now
 	test_steps = 500000
@@ -80,6 +81,7 @@ if __name__ == '__main__':
 	for i in range(numDevices):
 		# different test for each rotary stage
 		if rotary[i] == 1:
+			print("Original Radius", radii[i])
 			for j in range(numDevices):
 				# Don't try moving the test device
 				if j == i:
@@ -87,15 +89,16 @@ if __name__ == '__main__':
 				devices[j].move_rel(test_steps)
 				new_points = rt.move_track_home(track,devices,i)
 				new_eval = ev.evalPoints(new_points)
-				_, _, _, new_radius = new_eval.evaluate()
+				_, _, _, new_radius, _ = new_eval.evaluate()
 				devices[j].home()
 				time.sleep(2)
 
+				print("New Radius", new_radius)
 				# Check if radius changed
 				if (abs(new_radius-radii[i]) > tolerance):
-					print("Device " + str(j) + " is below device " + str(i) + " in the hierarchy")
-				else:
 					print("Device " + str(j) + " is above device " + str(i) + " in the hierarchy")
+				else:
+					print("Device " + str(j) + " is below device " + str(i) + " in the hierarchy")
 				#TODO: Implement a stack/list to sort devices
 
 

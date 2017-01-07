@@ -81,11 +81,11 @@ def select_cameras(camList, exposure = -4, fps = 30):
 	return Lcam_int, Rcam_int
 
 
-def saveCaliPhotos(Lcam_ind, Rcam_ind, saveFolderName):
+def saveCaliPhotos(Lcam_ind, Rcam_ind, saveFolderName, img_height, img_width, chessBoardSize=[9,6],numPics = 10, rescaleSize = 1,exposure = -4,fps = 30):
 	saveLocation = 'CalibrationPhotos/'+saveFolderName+'/'
-	numPics = 10
-	rescaleSize = 1
-	s2p = sp.Save2Pic(saveLocation,numPics,Lcam_ind, Rcam_ind, rescaleSize, True)
+	s2p = sp.Save2Pic(saveLocation,numPics,Lcam_ind, Rcam_ind, rescaleSize, displayPattern=True,
+					  chessBoardSize=chessBoardSize,img_height=img_height,img_width=img_width,
+					  exposure = exposure,fps = fps)
 	return saveLocation
 
 # returns a matrix of the calibration parameters from a file.

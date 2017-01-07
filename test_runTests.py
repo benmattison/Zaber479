@@ -27,7 +27,7 @@ def move_track_home(track, devices, device_int, num_moves = 3, num_steps = 30000
 
 if __name__ == '__main__':
 
-	settingsPath = "settingsLogiBen.json"
+	settingsPath = "settingsLogi.json"
 
 	if not os.path.isfile(settingsPath):
 		print settingsPath+" could not be located"
@@ -46,7 +46,7 @@ if __name__ == '__main__':
 	# Begin tracking end effector. At this point, all stages should be at 'home' position
 	sqSize = userSettings["chessboardSquareSize"]
 	track = st.StereoTracker(calConstants,sqSize)  # initialize stereo tracker
-	track.initializeCameras(Lcam_int, Rcam_int,Lcam_exposure=-5,Rcam_exposure=-4,fps=30)
+	track.initializeCameras(Lcam_int, Rcam_int,Lcam_exposure=-2,Rcam_exposure=-2,fps=5)
 	print "Align cameras so full robotic range of motion is in both views and press Q+ENTER"
 	track.showVideo()
 
@@ -58,7 +58,7 @@ if __name__ == '__main__':
 
 	print device_points
 
-	myfile = open('device_points_'+time.asctime()+'.csv', 'wb')
+	myfile = open('device_points_latest.csv', 'wb')
 	wr = csv.writer(myfile)
 	wr.writerows(device_points)
 
@@ -71,10 +71,12 @@ if __name__ == '__main__':
 
 		# print evaluation.lineAnalysis()
 		# print evaluation.circleAnalysis()
-		isRotary, center, axis = evaluation.evaluate()
+		isRotary, center, axis, radius, stepSize1k = evaluation.evaluate()
 		print("Rotary?", isRotary)
 		print("Center Point", center)
 		print("Axis", axis)
+		print("Radius", radius)
+		print("mm per 1000 steps", stepSize1k)
 
 		evaluation.plotPoints()
 		us.print_wait("Continue...")

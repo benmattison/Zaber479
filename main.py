@@ -43,14 +43,19 @@ while not EXIT_FLAG:
 		else:
 			us.print_wait("Multiple cameras detected. You will need to select which cameras are which.")
 
-		Lcam_int, Rcam_int = cb.select_cameras(camList, exposure = -1, fps = 30)
+		Lcam_int, Rcam_int = cb.select_cameras(camList, exposure = -4, fps = 30)
 		userSettings["Lcam"] = Lcam_int
 		userSettings["Rcam"] = Rcam_int
 
 		# Have the user select if they want to do a camera calibration or not. If not, load a default calibration.
 		calPath = cb.find_calibration()
 		sqSize = 37.67
-		chessboardSize = [9,6]
+		chessBoardSize = [9,6]
+		img_height = 720
+		img_width = 1280
+		numPics = 20
+		exposure = -4
+		fps = 30
 
 		if not calPath:
 			us.print_wait("No calibration file selected. You will need to take pictures.")
@@ -58,11 +63,12 @@ while not EXIT_FLAG:
 			if not saveFolder:
 				saveFolder = "tempPhotos"
 			us.print_wait("When the calibration pattern is in both frames, press 'p' to capture images")
-			photoPath = cb.saveCaliPhotos(Lcam_int, Rcam_int, saveFolder)
+			photoPath = cb.saveCaliPhotos(Lcam_int, Rcam_int, saveFolder, img_height, img_width, numPics = numPics,
+										  chessBoardSize = chessBoardSize, exposure = exposure, fps = fps)
 			# Might as well give the calibration the same name as the folder of photos it comes from.
 			calName = saveFolder
 
-			calPath = cb.calibrateFromPics(chessboardSize,photoPath,calName)
+			calPath = cb.calibrateFromPics(chessBoardSize,photoPath,calName)
 			calConstants = cb.loadCalibration(calPath)
 		userSettings["calPath"] = calPath
 		userSettings["chessboardSquareSize"] = sqSize
@@ -92,7 +98,7 @@ while not EXIT_FLAG:
 		# Begin tracking end effector. At this point, all stages should be at 'home' position
 		sqSize = userSettings["chessboardSquareSize"]
 		track = st.StereoTracker(calConstants,sqSize)  # initialize stereo tracker
-		track.initializeCameras(Lcam_int, Rcam_int,exposure=-4,fps=30)
+		track.initializeCameras(Lcam_int, Rcam_int,Lcam_exposure=-4,Rcam_exposure=-4,fps=30)
 
 		# Have user align cameras
 		print "Align cameras so full robotic range of motion is in both views"

@@ -4,21 +4,20 @@ import argparse
 import numpy as np
 import os
 
+
 def createFolder(location):
 	if not (location.endswith('/') or location.endswith('\\')):
 		location = location + '/'
 	if not os.path.exists(location):
 		os.makedirs(location)
 
-def setParams(camera):
-	EXPOSURE_PARAM = 15
-	FPS_PARAM = 5
 
-	exposure = -5
-	fps = 5
+def setParams(camera, exposure = -4, fps = 30, img_height = 640, img_width = 480):
+	camera.set(cv2.CAP_PROP_EXPOSURE, exposure)
+	camera.set(cv2.CAP_PROP_FPS, fps)
+	camera.set(cv2.CAP_PROP_FRAME_HEIGHT, img_height)
+	camera.set(cv2.CAP_PROP_FRAME_WIDTH, img_width)
 
-	camera.set(EXPOSURE_PARAM, exposure)
-	camera.set(FPS_PARAM, fps)
 
 def rescale(image, ratio):  # Resize an image using linear interpolation
 	if ratio == 1:
@@ -26,6 +25,7 @@ def rescale(image, ratio):  # Resize an image using linear interpolation
 	dim = (int(image.shape[1] * ratio), int(image.shape[0] * ratio))
 	rescaled = cv2.resize(image, dim, interpolation=cv2.INTER_LINEAR)
 	return rescaled
+
 
 class Save1Pic(object):
 	def __init__(self,savePath,numPics,camIndex,rescaleSize):
@@ -66,7 +66,7 @@ class Save1Pic(object):
 
 
 class Save2Pic(object):
-	def __init__(self,savePath,numPics,leftCamIndex,rightCamIndex,rescaleSize, displayPattern = False, chessBoardSize = [9,6]):
+	def __init__(self,savePath,numPics,leftCamIndex,rightCamIndex,rescaleSize,displayPattern=False,chessBoardSize=[9,6],img_height=640,img_width=480,fps=30,exposure=-4):
 		self.saveLocation = savePath
 		createFolder(self.saveLocation)
 		self.maxPic =  numPics
@@ -75,8 +75,13 @@ class Save2Pic(object):
 		self.Lcam = cv2.VideoCapture(leftCamIndex)
 		self.Rcam = cv2.VideoCapture(rightCamIndex)
 
-		setParams(self.Lcam)
-		setParams(self.Rcam)
+		self.fps = fps
+		self.img_height = img_height
+		self.img_width = img_width
+		self.exposure = exposure
+
+		setParams(self.Lcam,exposure=self.exposure,img_width=self.img_width,img_height=self.img_height,fps=self.fps)
+		setParams(self.Rcam,exposure=self.exposure,img_width=self.img_width,img_height=self.img_height,fps=self.fps)
 
 		self.main(displayPattern, chessBoardSize)
 
