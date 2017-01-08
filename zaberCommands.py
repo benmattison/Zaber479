@@ -49,8 +49,8 @@ def check_serial_ports(portType='AsciiSerial'):
 	"""
 	# Find serial ports on the system
 	COMports = serial_ports()
-	print(len(COMports))
-	print COMports
+	#print(len(COMports))
+	print ("Communicating through ",COMports)
 
 	# Connect to the serial port with the Zaber stage (if more than one on system).
 	if len(COMports) == 0:
