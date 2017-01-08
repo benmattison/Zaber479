@@ -95,12 +95,14 @@ def getHSVBounds(**kwargs):
 
 class StereoTracker(object):
 	def __init__(self,calConstants,sqSize):
-		print len(calConstants)
+		#print len(calConstants)
 		[self.M1, self.M2, self.d1, self.d2, self.R, self.T, self.E, self.F, self.dims] = calConstants
 		flags = 0
 		flags |= cv2.CALIB_ZERO_DISPARITY
 		self.R1, self.R2, self.P1, self.P2, self.Q, self.roi1, self.roi2 = cv2.stereoRectify(self.M1, self.d1, self.M2, self.d2, self.dims, self.R, self.T, alpha=-1, flags=flags)
 		self.sqSize = sqSize
+		print("R1",self.R1)
+		print("R2",self.R2)
 
 	def initializeCameras(self,Lcam_index,Rcam_index,Lcam_exposure=-4,Rcam_exposure=-4,fps=30):
 		self.Lcam = cv2.VideoCapture(Lcam_index)

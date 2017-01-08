@@ -69,7 +69,7 @@ class Save2Pic(object):
 	def __init__(self,savePath,numPics,leftCamIndex,rightCamIndex,rescaleSize,displayPattern=False,chessBoardSize=[9,6],img_height=640,img_width=480,fps=30,exposure=-4):
 		self.saveLocation = savePath
 		createFolder(self.saveLocation)
-		self.maxPic =  numPics
+		self.maxPic = numPics
 		self.rescaleSize = rescaleSize
 
 		self.Lcam = cv2.VideoCapture(leftCamIndex)
@@ -83,7 +83,7 @@ class Save2Pic(object):
 		setParams(self.Lcam,exposure=self.exposure,img_width=self.img_width,img_height=self.img_height,fps=self.fps)
 		setParams(self.Rcam,exposure=self.exposure,img_width=self.img_width,img_height=self.img_height,fps=self.fps)
 
-		self.main(displayPattern, chessBoardSize)
+		self.main(displayPattern=displayPattern, patSize=chessBoardSize)
 
 	def main(self, displayPattern = False, patSize = [9,6]):
 		i = 0
