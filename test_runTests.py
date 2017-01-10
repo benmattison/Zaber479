@@ -11,6 +11,7 @@ import csv
 
 
 def move_track_home(track, devices, device_int, num_moves = 3, num_steps = 300000):
+	print "Tracking device " + str(device_int) + "..."
 	points = []
 	#points.append(track.trackBall('pink')) # take pic/points at home position
 	for i in range(num_moves):
@@ -23,6 +24,7 @@ def move_track_home(track, devices, device_int, num_moves = 3, num_steps = 30000
 			devices[device_int].move_rel(num_steps)
 		time.sleep(2)
 	devices[device_int].home()
+	print "Finished tracking device " + str(device_int)
 	x = np.array(points)
 	return np.squeeze(x)
 

@@ -1,5 +1,4 @@
 import usefulFunctions as us
-# import zaberCommands as zc
 import evaluatePoints as ev
 import stereoTracking as st
 import robotFunctions as rb

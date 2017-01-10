@@ -50,7 +50,6 @@ def check_serial_ports(portType='AsciiSerial'):
 	# Find serial ports on the system
 	COMports = serial_ports()
 	#print(len(COMports))
-	print ("Communicating through ",COMports)
 
 	# Connect to the serial port with the Zaber stage (if more than one on system).
 	if len(COMports) == 0:
@@ -63,11 +62,13 @@ def check_serial_ports(portType='AsciiSerial'):
 	else:
 		print('Multiple COM ports found, please identify which is connected to Zaber stage')
 		c = raw_input('Enter COM port number followed by ENTER: ')
+		COMports[0] = ('COM%s' % c)
 		if portType == 'AsciiSerial':
-			port = AsciiSerial('COM%d' % c)
+			port = AsciiSerial(COMports[0])
 		elif portType == 'Serial':
-			port = serial.Serial('COM%d'%c,115200,timeout=1)
+			port = serial.Serial(COMports[0],115200,timeout=1)
 
+	print "Communicating through " + str(COMports[0])
 
 	return port
 
@@ -92,11 +93,12 @@ def initialize_zaber_serial(port, **kwargs):
 		try:
 			devices[i] = AsciiDevice(port, i+1)# Device number i
 			devices[i].home()
+			print "Stage " + str(i) + " in home position"
 		except:
 			numDevices = i
 			break
 
-	print('Number of initialized devices is: ' + str(numDevices))
+	print('The total number of initialized Zaber devices is: ' + str(numDevices))
 
 	return devices, numDevices
 

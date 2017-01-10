@@ -101,8 +101,8 @@ class StereoTracker(object):
 		flags |= cv2.CALIB_ZERO_DISPARITY
 		self.R1, self.R2, self.P1, self.P2, self.Q, self.roi1, self.roi2 = cv2.stereoRectify(self.M1, self.d1, self.M2, self.d2, self.dims, self.R, self.T, alpha=-1, flags=flags)
 		self.sqSize = sqSize
-		print("R1",self.R1)
-		print("R2",self.R2)
+		#print("R1",self.R1)
+		#print("R2",self.R2)
 
 	def initializeCameras(self,Lcam_index,Rcam_index,Lcam_exposure=-4,Rcam_exposure=-4,fps=30):
 		self.Lcam = cv2.VideoCapture(Lcam_index)
@@ -140,6 +140,26 @@ class StereoTracker(object):
 
 				cv2.imshow('Rcam',capR)
 				cv2.imshow('Lcam',capL)
+
+			key = cv2.waitKey(1)
+			if key == ord('q'):
+				break
+
+	def showMask(self, colour):
+		lower, upper = getHSVBounds(hsv=colour)
+		while True:
+			# retR, capR = self.Rcam.read()
+			# retL, capL = self.Lcam.read()
+			retR = self.Rcam.grab()
+			retL = self.Lcam.grab()
+			if retR and retL:
+				retR, capR = self.Rcam.retrieve()
+				retL, capL = self.Lcam.retrieve()
+				maskL, hsvL = filterColor(capL, lower, upper)
+				maskR, hsvR = filterColor(capR, lower, upper)
+
+				cv2.imshow('Rcam_mask',maskR)
+				cv2.imshow('Lcam_mask',maskL)
 
 			key = cv2.waitKey(1)
 			if key == ord('q'):
