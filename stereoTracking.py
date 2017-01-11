@@ -84,8 +84,8 @@ def getHSVBounds(**kwargs):
 				lower = (45, 86, 30)
 				upper = (80, 255, 255)
 			elif kwargs[key] == 'pink':
-				lower = (145, 0, 180)
-				upper = (160, 255, 255)
+				lower = (140, 0, 0)
+				upper = (255, 255, 255)
 			elif kwargs[key] == 'blue':
 				lower = (115, 100, 70)
 				upper = (125, 255, 255)
@@ -121,12 +121,20 @@ class StereoTracker(object):
 		self.Lcam.set(cv2.CAP_PROP_EXPOSURE, Lcam_exposure)
 		self.Rcam.set(cv2.CAP_PROP_EXPOSURE, Rcam_exposure)
 
+
 		for camera in [self.Lcam, self.Rcam]:
+			#camera.set(cv2.CAP_PROP_AUTO_EXPOSURE,1)
 			#camera.set(cv2.CAP_PROP_EXPOSURE, exposure)
 			camera.set(cv2.CAP_PROP_FPS, fps)
 			#camera.set(cv2.CAP_PROP_FORMAT,cv2.CV_8UC3)
 			camera.set(cv2.CAP_PROP_FRAME_WIDTH,self.dims[0])
 			camera.set(cv2.CAP_PROP_FRAME_HEIGHT,self.dims[1])
+			camera.set(cv2.CAP_PROP_GAIN,1.0)
+			camera.set(cv2.CAP_PROP_BRIGHTNESS,1.0)
+			print camera.get(cv2.CAP_PROP_BRIGHTNESS)
+			print camera.get(cv2.CAP_PROP_CONTRAST)
+			print camera.get(cv2.CAP_PROP_GAIN)
+
 
 	def showVideo(self):
 		while True:
