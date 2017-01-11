@@ -15,7 +15,6 @@ sqSize = userSettings["chessboardSquareSize"]
 track = st.StereoTracker(calConstants, sqSize)  # initialize stereo tracker
 track.initializeCameras(Lcam_int, Rcam_int, Lcam_exposure=-5, Rcam_exposure=-5, fps=30)
 
-
 track.showVideo()
 track.showMask('pink')
 
