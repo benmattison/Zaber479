@@ -30,7 +30,7 @@ def init_devices_track_from_settings(settingsPath):
 	# Begin tracking end effector. At this point, all stages should be at 'home' position
 	sqSize = userSettings["chessboardSquareSize"]
 	track = st.StereoTracker(calConstants, sqSize)  # initialize stereo tracker
-	track.initializeCameras(Lcam_int, Rcam_int, Lcam_exposure=-5, Rcam_exposure=-4, fps=30)
+	track.initializeCameras(Lcam_int, Rcam_int, Lcam_exposure=-5, Rcam_exposure=-5, fps=30)
 
 	return devices, numDevices, track
 
@@ -44,6 +44,7 @@ def get_device_points(track,devices,numDevices):
 		print ""
 		print "Tracked points for device " + str(i) + ": "
 		print points
+		print ""
 		time.sleep(2)
 	return device_points
 
@@ -63,9 +64,9 @@ if __name__ == '__main__':
 	# Get initial data homing after every track
 	device_points = get_device_points(track,devices,numDevices)
 
-	#print ""
-	#print "All tracked points: "
-	#print device_points
+	print ""
+	print "All tracked points: "
+	print device_points
 
 	print ""
 	evals = []
