@@ -57,7 +57,7 @@ if __name__ == '__main__':
 
 	print ""
 	print "Align cameras so full robotic range of motion is in both views and press Q+ENTER"
-	track.showMask('pink')
+	track.showMaskTune('pink')
 	print ""
 	print "Starting tracking..."
 

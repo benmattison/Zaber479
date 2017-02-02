@@ -6,6 +6,7 @@ import pickle
 import calibrateCameras as cb
 # Import our own code
 import evaluatePoints
+import Tkinter as tk
 
 
 def filterColor(image, lowerHSV, upperHSV): # Filter out a certain set of colors from an image
@@ -84,7 +85,7 @@ def getHSVBounds(**kwargs):
 				lower = (45, 86, 30)
 				upper = (80, 255, 255)
 			elif kwargs[key] == 'pink':
-				lower = (140, 0, 0)
+				lower = (130, 30, 30)
 				upper = (255, 255, 255)
 			elif kwargs[key] == 'blue':
 				lower = (115, 100, 70)
@@ -92,6 +93,49 @@ def getHSVBounds(**kwargs):
 
 	return lower, upper
 
+class MyDialog:
+    def __init__(self, parent, defaults = [-4,-4,(140, 0, 0),(255, 255, 255)]):
+        # top = self.top = tk.Toplevel(parent)
+        top = self.top = parent
+
+        tk.Label(top, text="ExposureL").grid(row=0)
+        tk.Label(top, text="ExposureR").grid(row=1)
+        self.e1 = tk.Entry(top)
+        self.e2 = tk.Entry(top)
+        self.lower = tk.Entry(top)
+        self.upper = tk.Entry(top)
+        butt = tk.Button(top, text='OK', command=self.ok)
+        self.e1.insert(0, str(defaults[0]))
+        self.e2.insert(0, str(defaults[1]))
+        self.e1.grid(row=0, column=1)
+        self.e2.grid(row=1, column=1)
+        self.lower.insert(0, str(defaults[2]))
+        self.upper.insert(0, str(defaults[3]))
+        self.lower.grid(row=2, column=1)
+        self.upper.grid(row=3, column=1)
+        butt.grid(row=4, column=1)
+
+    def ok(self):
+    	self.expL = int(self.e1.get())
+    	self.expR = int(self.e2.get())
+
+    	lowerStr = self.lower.get()
+    	lowerStr = lowerStr.strip('(')
+    	lowerStr = lowerStr.strip(')')
+    	lowerList = lowerStr.split(',')
+    	lowerList = [int(num) for num in lowerList]
+    	lower = tuple(lowerList)
+    	self.lower = lower
+
+    	upperStr = self.upper.get()
+    	upperStr = upperStr.strip('(')
+    	upperStr = upperStr.strip(')')
+    	upperList = upperStr.split(',')
+    	upperList = [int(num) for num in upperList]
+    	upper = tuple(upperList)
+    	self.upper = upper
+
+        self.top.destroy()
 
 class StereoTracker(object):
 	def __init__(self,calConstants,sqSize):
@@ -105,6 +149,8 @@ class StereoTracker(object):
 		#print("R2",self.R2)
 
 	def initializeCameras(self,Lcam_index,Rcam_index,Lcam_exposure=-4,Rcam_exposure=-4,fps=30):
+		self.Lcam_index = Lcam_index
+		self.Rcam_index = Rcam_index
 		self.Lcam = cv2.VideoCapture(Lcam_index)
 		self.Rcam = cv2.VideoCapture(Rcam_index)
 
@@ -163,6 +209,7 @@ class StereoTracker(object):
 			if retR and retL:
 				retR, capR = self.Rcam.retrieve()
 				retL, capL = self.Lcam.retrieve()
+
 				maskL, hsvL = filterColor(capL, lower, upper)
 				maskR, hsvR = filterColor(capR, lower, upper)
 
@@ -172,6 +219,47 @@ class StereoTracker(object):
 			key = cv2.waitKey(1)
 			if key == ord('q'):
 				break
+
+	def showMaskTune(self, colour):
+		lower, upper = getHSVBounds(hsv=colour)
+		defaults = [-4,-4, lower, upper]
+		while True:
+			# retR, capR = self.Rcam.read()
+			# retL, capL = self.Lcam.read()
+			retR = self.Rcam.grab()
+			retL = self.Lcam.grab()
+			if retR and retL:
+				retR, capR = self.Rcam.retrieve()
+				retL, capL = self.Lcam.retrieve()
+
+				# cv2.imshow('Rcam',capR)
+				# cv2.imshow('Lcam',capL)
+
+				maskL, hsvL = filterColor(capL, lower, upper)
+				maskR, hsvR = filterColor(capR, lower, upper)
+
+				cv2.imshow('Rcam_mask',maskR)
+				cv2.imshow('Lcam_mask',maskL)
+
+			key = cv2.waitKey(1)
+			if key == ord('q'):
+				break
+			if key == ord('p'):
+				root = tk.Tk()
+				d = MyDialog(root, defaults)
+				root.wait_window(d.top)
+				expL = d.expL
+				print expL
+				expR = d.expR
+				print expR
+				lower = d.lower
+				print lower
+				upper = d.upper
+				print upper
+
+				defaults = [expL, expR, lower, upper]
+				self.Lcam.set(cv2.CAP_PROP_EXPOSURE, expL)
+				self.Rcam.set(cv2.CAP_PROP_EXPOSURE, expR)
 
 	def showFrame(self):
 		retR = self.Rcam.grab()
